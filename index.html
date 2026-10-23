@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="자유롭게 메모를 배치하고, 가리고, 확인하며 공부하는 로그인 없는 암기 화이트보드.">
   <meta name="color-scheme" content="light dark">
+  <meta name="moa-build" content="2026-10-23-welcome-2">
   <title>모아보드 · 암기 화이트보드</title>
   <!-- Bundled Lucide icons. The complete ISC license is included below. -->
   <!-- ISC License
@@ -98,7 +99,7 @@ SOFTWARE.
   <input id="mf-file-input" type="file" accept=".json,application/json" aria-label="모아보드 저장 파일 선택" hidden>
   <dialog id="mf-welcome" aria-labelledby="mf-welcome-title" aria-describedby="mf-welcome-intro">
     <div class="mf-welcome-heading">
-      <div><span class="mf-welcome-kicker">모아보드</span><h1 id="mf-welcome-title">이렇게 사용해요</h1></div>
+      <div><span class="mf-welcome-kicker">모아보드 · 시작 안내</span><h1 id="mf-welcome-title">이렇게 사용해요</h1></div>
       <button type="button" data-action="close-help" class="mf-welcome-close cursor-interaction" aria-label="사용법 닫기"><i data-lucide="x" aria-hidden="true"></i></button>
     </div>
     <p id="mf-welcome-intro">빈 보드에 메모를 붙이고, 가리면서 외워보세요.</p>
@@ -233,7 +234,7 @@ SOFTWARE.
   const topics={network:'네트워크',database:'데이터베이스',security:'정보보안',general:'미분류'};
   const data={pages:[{id:'page-1',name:'새 페이지',view:{x:0,y:0,z:1},notes:[]}]};
   let pageId='page-1',overview=false,overviewView={x:0,y:0,z:1},overviewPositions=new Map(),study=false,selected=new Set(),editor=null,drag=null,space=false,serial=1,history=[],menuNote=null,menuPoint=null;
-  const welcome=$('#mf-welcome'),welcomePreference=$('#mf-welcome-hide'),welcomeKey='moa-board.hide-welcome.v1';
+  const welcome=$('#mf-welcome'),welcomePreference=$('#mf-welcome-hide'),welcomeKey='moa-board.hide-welcome.v2';
   function hideWelcomePreference(){try{return localStorage.getItem(welcomeKey)==='1';}catch{return false;}}
   function showWelcome(force=false){
     if(!force&&hideWelcomePreference())return;
