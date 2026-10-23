@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="자유롭게 메모를 배치하고, 가리고, 확인하며 공부하는 로그인 없는 암기 화이트보드.">
   <meta name="color-scheme" content="light dark">
-  <meta name="moa-build" content="2026-10-23-board-v2">
+  <meta name="moa-build" content="2026-10-23-select-palette-image-v4">
   <title>모아보드 · 암기 화이트보드</title>
   <!-- Bundled Lucide icons. The complete ISC license is included below. -->
   <!-- ISC License
@@ -81,7 +81,9 @@ SOFTWARE.
     <button type="button" id="mf-study" class="cursor-interaction" aria-pressed="false"><i data-lucide="brain" aria-hidden="true"></i>암기 모드<kbd>M</kbd></button>
   </div>
   <div id="mf-canvas" class="mf-canvas" aria-label="빈 공간을 우클릭해서 메모를 붙이는 보드">
+    <div id="mf-image-layer" aria-hidden="true" hidden></div>
     <div id="mf-world" class="mf-world"></div>
+    <div id="mf-selection-box" aria-hidden="true" hidden></div>
   </div>
   <div id="mf-menu" class="mf-menu" aria-label="메모 메뉴" hidden></div>
   <section id="mf-pages" class="mf-pages" aria-label="페이지별 보기와 전체 보기" hidden>
@@ -94,6 +96,12 @@ SOFTWARE.
       <label>테마<select id="mf-theme"><option value="basic">베이직 · 따뜻한 종이</option><option value="white">화이트</option><option value="light">라이트 · 차분한 회색</option><option value="dark">다크</option><option value="system">브라우저 설정 따르기</option></select></label>
       <label>배경지<select id="mf-background"><option value="dots">도트</option><option value="grid">모눈</option><option value="lines">줄 노트</option><option value="plain">무지</option></select></label>
       <label>배경 색상<input id="mf-board-color" type="color" value="#f7f6f2"></label><button type="button" data-action="reset-background">테마 기본 배경색</button>
+      <div class="mf-image-controls"><span>배경 이미지</span><div><button type="button" data-action="choose-background-image">이미지 선택</button><button type="button" data-action="remove-background-image" disabled>제거</button></div>
+        <p id="mf-image-name" class="mf-panel-help">선택된 이미지 없음</p>
+        <label>표시 방식<select id="mf-image-mode"><option value="cover">화면 채우기</option><option value="contain">이미지 전체 보기</option><option value="tile">반복 배경</option></select></label>
+        <label>이미지 농도 <output id="mf-image-opacity-value">100%</output><input id="mf-image-opacity" type="range" min="0" max="100" value="100" aria-label="배경 이미지 농도"></label>
+        <p id="mf-image-status" class="mf-panel-help" role="status">PNG·JPG·WebP · 이미지는 이 브라우저에서 처리돼요.</p>
+      </div>
     </details>
     <form id="mf-page-form"><input id="mf-page-name" aria-label="새 페이지 이름" placeholder="새 페이지 이름" maxlength="30" autocomplete="off"><button type="submit" aria-label="페이지 추가" class="cursor-interaction"><i data-lucide="plus" aria-hidden="true"></i></button></form>
     <div class="mf-file-actions">
@@ -104,6 +112,7 @@ SOFTWARE.
     <a id="mf-export-link" class="mf-download-link cursor-interaction" hidden>저장 파일 다운로드</a>
     <div id="mf-file-status" class="mf-file-status" role="status" aria-live="polite" hidden></div>
   </section>
+  <input id="mf-background-file" type="file" accept="image/png,image/jpeg,image/webp" aria-label="배경 이미지 선택" hidden>
   <input id="mf-file-input" type="file" accept=".json,application/json" aria-label="모아보드 저장 파일 선택" hidden>
   <dialog id="mf-welcome" aria-labelledby="mf-welcome-title" aria-describedby="mf-welcome-intro">
     <div class="mf-welcome-heading">
@@ -112,7 +121,7 @@ SOFTWARE.
     </div>
     <p id="mf-welcome-intro">빈 보드에 메모를 붙이고, 가리면서 외워보세요.</p>
     <ul class="mf-welcome-guide">
-      <li><span class="mf-guide-icon"><i data-lucide="mouse-pointer-2" aria-hidden="true"></i></span><div><strong>메모 만들고 꾸미기</strong><span>빈 곳 <b>우클릭</b>으로 추가, 더블클릭해 편집.<br>텍스트를 선택해 굵게·밑줄·형광펜을 적용해요.<br>메모를 드래그해 이동하고 모서리로 크기를 바꿔요.<br><kbd>Ctrl</kbd> + 휠로 확대·축소, 빈 곳 드래그로 이동.</span></div></li>
+      <li><span class="mf-guide-icon"><i data-lucide="mouse-pointer-2" aria-hidden="true"></i></span><div><strong>메모 만들고 꾸미기</strong><span>빈 곳 <b>우클릭</b>으로 추가, 더블클릭해 편집.<br>텍스트를 선택해 굵게·밑줄·형광펜을 적용해요.<br>메모를 드래그해 이동하고 모서리로 크기를 바꿔요.<br><kbd>Ctrl C</kbd> 복사 · <kbd>Ctrl V</kbd> 붙여넣기.<br><kbd>Ctrl</kbd> + 휠로 확대·축소, 빈 곳 드래그로 여러 메모 선택.<br><kbd>Space</kbd> + 드래그 / 가운데 버튼으로 보드 이동.</span></div></li>
       <li><span class="mf-guide-icon"><i data-lucide="brain" aria-hidden="true"></i></span><div><strong>가리고, 떠올리고, 확인하기</strong><span>암기 모드에서 메모를 <b>우클릭</b>하면<br>블러가 켜지고, 다시 누르면 내용이 보여요.</span></div></li>
       <li><span class="mf-guide-icon"><i data-lucide="files" aria-hidden="true"></i></span><div><strong>P 키는 보드의 전체 메뉴예요</strong><span><kbd>P</kbd> → 페이지 추가·이동 / 전체 모아보기<br>현재 페이지 정렬 / 파일 백업·불러오기 / 테마·배경 설정.<br><kbd>F</kbd>는 멀리 흩어진 메모까지 화면에 맞춰요.</span></div></li>
       <li><span class="mf-guide-icon"><i data-lucide="download" aria-hidden="true"></i></span><div><strong>자동 저장하고, 파일로도 백업해요</strong><span>같은 브라우저에서는 새로고침해도 자동 복원돼요.<br>다른 PC로 옮길 때는 <kbd>Ctrl S</kbd>로 JSON 백업,<br><kbd>Ctrl O</kbd>로 불러오기. 브라우저 데이터 삭제에 대비해 파일도 보관해 주세요.</span></div></li>
@@ -122,6 +131,18 @@ SOFTWARE.
       <button type="button" data-action="welcome-import" class="cursor-interaction">기존 파일 열기</button>
       <button type="button" data-action="close-help" class="mf-welcome-start cursor-interaction" autofocus>시작하기</button>
     </div>
+  </dialog>
+  <dialog id="mf-color-dialog" aria-labelledby="mf-color-title">
+    <div class="mf-welcome-heading"><h2 id="mf-color-title">사용자 색상</h2><button type="button" data-action="cancel-color" aria-label="색상 선택 취소">✕</button></div>
+    <p id="mf-color-count" class="mf-panel-help"></p>
+    <p class="mf-palette-section-title">자유 색상</p>
+    <div id="mf-color-pad" aria-hidden="true"><span id="mf-color-cursor"></span></div>
+    <label class="mf-palette-slider">색조<input id="mf-color-hue" type="range" min="0" max="359" step="1" aria-label="색조"></label>
+    <div class="mf-palette-adjustments"><label>채도<input id="mf-color-saturation" type="range" min="0" max="100" aria-label="채도"></label><label>밝기<input id="mf-color-value" type="range" min="0" max="100" aria-label="밝기"></label></div>
+    <div class="mf-palette-code"><span id="mf-color-swatch"></span><label for="mf-color-hex">HEX</label><input id="mf-color-hex" type="text" maxlength="7" spellcheck="false" autocomplete="off" aria-describedby="mf-color-error"><output id="mf-color-code"></output></div>
+    <p id="mf-color-error" role="status"></p><p class="mf-panel-help">최근 사용한 색상</p><div id="mf-recent-colors"></div>
+    <p class="mf-palette-section-title mf-default-palette-title">기본 팔레트</p><div id="mf-default-palette" aria-label="기본 색상 팔레트"></div>
+    <div class="mf-welcome-actions"><button type="button" data-action="cancel-color">취소 <kbd>Esc</kbd></button><button type="button" id="mf-color-apply" data-action="apply-color" class="mf-welcome-start">적용</button></div>
   </dialog>
   <div id="mf-storage-warning" class="mf-storage-warning" role="alert" hidden><span id="mf-storage-message"></span><button type="button" data-action="export-file">파일로 백업</button><button type="button" data-action="reload-saved" hidden>다른 탭의 보드 불러오기</button><button type="button" data-action="keep-current" hidden>현재 보드로 저장</button></div>
   <div id="mf-live" class="mf-live" aria-live="polite"></div>
@@ -241,7 +262,7 @@ SOFTWARE.
   const icon=name=>'<i data-lucide="'+name+'" aria-hidden="true"></i>';
   const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const topics={network:'네트워크',database:'데이터베이스',security:'정보보안',general:'미분류'};
-  let settings={theme:'basic',background:'dots',boardColor:null};
+  let settings={theme:'basic',background:'dots',boardColor:null,recentColors:[],backgroundImage:null,backgroundName:'',backgroundImageMode:'cover',backgroundImageOpacity:1};
   const data={pages:[{id:'page-1',name:'새 페이지',view:{x:0,y:0,z:1},notes:[]}]};
   let pageId='page-1',overview=false,overviewView={x:0,y:0,z:1},overviewPositions=new Map(),study=false,selected=new Set(),editor=null,drag=null,space=false,serial=1,history=[],menuNote=null,menuPoint=null;
   const storageKey='moa-board.autosave.v2:'+location.pathname.replace(/index\.html$/,'');
@@ -266,8 +287,16 @@ SOFTWARE.
   function htmlText(html){const t=document.createElement('template');t.innerHTML=cleanHTML(html);t.content.querySelectorAll('br').forEach(el=>el.replaceWith(document.createTextNode('\n')));return t.content.textContent.replace(/\u00a0/g,' ');}
   function contrast(hex){const c=hex.slice(1).match(/../g).map(x=>{const v=parseInt(x,16)/255;return v<=.04045?v/12.92:((v+.055)/1.055)**2.4;});return .2126*c[0]+.7152*c[1]+.0722*c[2]>.179?'#242424':'#ffffff';}
   function validSettings(raw){
-    const out={theme:'basic',background:'dots',boardColor:null};
+    const out={theme:'basic',background:'dots',boardColor:null,recentColors:[],backgroundImage:null,backgroundName:'',backgroundImageMode:'cover',backgroundImageOpacity:1};
     if(raw&&typeof raw==='object'){
+      if(raw.backgroundImage!=null){
+        if(typeof raw.backgroundImage!=='string'||raw.backgroundImage.length>1250000||!/^data:image\/(?:webp|png|jpeg);base64,[A-Za-z0-9+/]+={0,2}$/.test(raw.backgroundImage))throw Error('배경 이미지 정보가 올바르지 않아요.');
+        out.backgroundImage=raw.backgroundImage;
+      }
+      if(typeof raw.backgroundName==='string')out.backgroundName=raw.backgroundName.slice(0,100);
+      if(['cover','contain','tile'].includes(raw.backgroundImageMode))out.backgroundImageMode=raw.backgroundImageMode;
+      if(typeof raw.backgroundImageOpacity==='number'&&Number.isFinite(raw.backgroundImageOpacity)&&raw.backgroundImageOpacity>=0&&raw.backgroundImageOpacity<=1)out.backgroundImageOpacity=raw.backgroundImageOpacity;
+      if(Array.isArray(raw.recentColors))out.recentColors=[...new Set(raw.recentColors.filter(c=>typeof c==='string'&&/^#[0-9a-f]{6}$/i.test(c)).map(c=>c.toLowerCase()))].slice(0,8);
       if(['basic','white','light','dark','system'].includes(raw.theme))out.theme=raw.theme;
       if(['dots','grid','lines','plain'].includes(raw.background))out.background=raw.background;
       if(typeof raw.boardColor==='string'&&/^#[0-9a-f]{6}$/i.test(raw.boardColor))out.boardColor=raw.boardColor;
@@ -278,7 +307,7 @@ SOFTWARE.
   function applySettings(){
     root.dataset.theme=settings.theme;
     if(settings.boardColor)root.style.setProperty('--mf-board',settings.boardColor);else root.style.removeProperty('--mf-board');
-    canvas.style.backgroundImage=({dots:'radial-gradient(var(--mf-grid) .8px,transparent .8px)',grid:'linear-gradient(var(--mf-grid) 1px,transparent 1px),linear-gradient(90deg,var(--mf-grid) 1px,transparent 1px)',lines:'linear-gradient(var(--mf-grid) 1px,transparent 1px)',plain:'none'})[settings.background];
+    canvas.style.backgroundImage=({dots:'radial-gradient(var(--mf-grid) .8px,transparent .8px)',grid:'linear-gradient(var(--mf-grid) 1px,transparent 1px),linear-gradient(90deg,var(--mf-grid) 1px,transparent 1px)',lines:'linear-gradient(var(--mf-grid) 1px,transparent 1px)',plain:'none'})[settings.background];applyBackgroundImage();
   }
   function makePayload(){
     const pages=clone(data.pages);
@@ -436,7 +465,7 @@ SOFTWARE.
       return '<article class="mf-note'+(isEditing?' mf-editing':'')+(masked?' mf-masked':'')+(!study&&selected.has(n.id)?' mf-selected':'')+'" data-note="'+n.id+'" data-page="'+ownerOf(n.id).id+'" data-color="'+n.color+'" data-mask="'+n.mask+'" style="--note-x:'+pos.x+'px;--note-y:'+pos.y+'px;--note-w:'+(n.w||242)+'px;--note-h:'+(n.h||230)+'px;'+(color?'--note-color:'+color+';--note-ink:'+contrast(color)+';':'')+'">'+inside+handles+'</article>';
 
     }).join('');
-    applyView();icons();scheduleSave();
+    applyView();icons();scheduleSave();if(colorDraft)previewNoteColors();
   }
   function applyView(){
     const v=view();world.style.transform='translate('+v.x+'px,'+v.y+'px) scale('+v.z+')';
@@ -512,7 +541,7 @@ SOFTWARE.
     const n=byId(id);
     if(!selected.has(id))selected=new Set([id]);
     paintSelection();
-    menu.innerHTML='<button type="button" class="mf-menu-item cursor-interaction" data-action="edit-note">'+icon('pencil')+'메모 편집<kbd>Enter</kbd></button><div class="mf-menu-row"><span>색상</span><div class="mf-colors">'+[['yellow','노랑'],['mint','민트'],['lilac','라일락']].map(([id,name])=>'<button type="button" class="cursor-interaction" data-color="'+id+'" aria-label="'+name+'" aria-pressed="'+(n.color===id)+'"></button>').join('')+'<input id="mf-custom-color" type="color" aria-label="메모 사용자 색상" value="'+(/^#[0-9a-f]{6}$/i.test(n.color)?n.color:'#fff0bd')+'"></div></div><label class="mf-menu-row"><span>분류</span><input type="text" id="mf-topic" aria-label="메모 분류" maxlength="60" placeholder="직접 입력 · 비우면 미분류" value="'+esc(n.topic)+'"></label><label class="mf-menu-row"><span>가림</span><select id="mf-mask" aria-label="가릴 범위"><option value="body" '+(n.mask==='body'?'selected':'')+'>본문만</option><option value="all" '+(n.mask==='all'?'selected':'')+'>메모 전체</option></select></label><div class="mf-menu-divider"></div><button type="button" class="mf-menu-item cursor-interaction" data-action="group" '+(picked().length<2?'disabled':'')+'>'+icon('group')+'선택 메모 그룹화<kbd>Ctrl G</kbd></button><button type="button" class="mf-menu-item cursor-interaction" data-action="ungroup" '+(!n.group?'disabled':'')+'>'+icon('ungroup')+'그룹 해제</button><button type="button" class="mf-menu-item cursor-interaction" data-action="duplicate">'+icon('copy')+'복제<kbd>Ctrl D</kbd></button><button type="button" class="mf-menu-item mf-danger cursor-interaction" data-action="delete">'+icon('trash-2')+'삭제<kbd>Del</kbd></button><div class="mf-menu-divider"></div><button type="button" class="mf-menu-item cursor-interaction" data-action="pages">'+icon('files')+'페이지<kbd>P</kbd></button>';
+    menu.innerHTML='<button type="button" class="mf-menu-item cursor-interaction" data-action="edit-note">'+icon('pencil')+'메모 편집<kbd>Enter</kbd></button><div class="mf-menu-row"><span>색상</span><div class="mf-colors">'+[['yellow','노랑'],['mint','민트'],['lilac','라일락']].map(([id,name])=>'<button type="button" class="cursor-interaction" data-color="'+id+'" aria-label="'+name+'" aria-pressed="'+(n.color===id)+'"></button>').join('')+'</div></div><button type="button" class="mf-menu-item" data-action="open-palette">사용자 색상 · 팔레트…</button><div class="mf-menu-recent">'+(settings.recentColors||[]).map(hex=>'<button type="button" data-recent-color="'+hex+'" style="background:'+hex+'" aria-label="최근 색상 '+hex+'"></button>').join('')+'</div><label class="mf-menu-row"><span>분류</span><input type="text" id="mf-topic" aria-label="메모 분류" maxlength="60" placeholder="직접 입력 · 비우면 미분류" value="'+esc(n.topic)+'"></label><label class="mf-menu-row"><span>가림</span><select id="mf-mask" aria-label="가릴 범위"><option value="body" '+(n.mask==='body'?'selected':'')+'>본문만</option><option value="all" '+(n.mask==='all'?'selected':'')+'>메모 전체</option></select></label><div class="mf-menu-divider"></div><button type="button" class="mf-menu-item cursor-interaction" data-action="group" '+(picked().length<2?'disabled':'')+'>'+icon('group')+'선택 메모 그룹화<kbd>Ctrl G</kbd></button><button type="button" class="mf-menu-item cursor-interaction" data-action="ungroup" '+(!n.group?'disabled':'')+'>'+icon('ungroup')+'그룹 해제</button><button type="button" class="mf-menu-item cursor-interaction" data-action="duplicate">'+icon('copy')+'복제<kbd>Ctrl D</kbd></button><button type="button" class="mf-menu-item mf-danger cursor-interaction" data-action="delete">'+icon('trash-2')+'삭제<kbd>Del</kbd></button><div class="mf-menu-divider"></div><button type="button" class="mf-menu-item cursor-interaction" data-action="pages">'+icon('files')+'페이지<kbd>P</kbd></button>';
     const ownerField='<label class="mf-menu-row"><span>페이지</span><select id="mf-owner" aria-label="메모 소속 페이지">'+data.pages.map(p=>'<option value="'+p.id+'" '+(ownerOf(n.id).id===p.id?'selected':'')+'>'+esc(p.name)+'</option>').join('')+'</select></label>';
     const selectGroup='<button type="button" class="mf-menu-item cursor-interaction" data-action="select-group" '+(!n.group?'disabled':'')+'>'+icon('group')+'같은 그룹 선택</button>';
     menu.innerHTML=menu.innerHTML.replace('<div class="mf-menu-divider"></div>',ownerField+'<div class="mf-menu-divider"></div>'+selectGroup);
@@ -525,7 +554,7 @@ SOFTWARE.
     $('#mf-file-status').hidden=true;$('#mf-export-link').hidden=true;
     $('#mf-theme').value=settings.theme;$('#mf-background').value=settings.background;$('#mf-board-color').value=settings.boardColor||defaultBoardColor();$('#mf-save-status').textContent=saveStatusText();
     root.querySelector('[data-action="arrange"]').disabled=study||overview||!page().notes.length;
-    pagesPanel.hidden=false;icons();
+    updateImageControls();pagesPanel.hidden=false;icons();
   }
   let exportUrl=null,importing=false;
   function fileStatus(message,isError=false){
@@ -662,9 +691,9 @@ SOFTWARE.
       pageId=b.dataset.page;overview=false;selected.clear();closePanels();render();fit();return;
     }
     if(b.dataset.color){
-      const n=byId(menuNote);if(!n)return;snapshot();n.color=b.dataset.color;
-      const point=menuPoint;render();openMenu(n.id,point.x,point.y);return;
+      const id=menuNote,point=menuPoint;applyNoteColor(b.dataset.color);if(id&&point)openMenu(id,point.x,point.y);return;
     }
+    if(b.dataset.recentColor){const id=menuNote,point=menuPoint;applyNoteColor(b.dataset.recentColor);if(id&&point)openMenu(id,point.x,point.y);return;}
     if(b.dataset.face&&e.detail===0){
       selected=new Set([b.dataset.face]);paintSelection();
       if(study)toggle(picked());
@@ -672,6 +701,9 @@ SOFTWARE.
     }
     const id=menuNote||[...selected][0];
     switch(b.dataset.action){
+      case'choose-background-image':$('#mf-background-file').click();break;
+      case'remove-background-image':snapshot();settings.backgroundImage=null;settings.backgroundName='';render();updateImageControls();$('#mf-image-status').textContent='배경 이미지를 제거했어요. Ctrl Z로 복원할 수 있어요.';break;
+      case'open-palette':openPalette();break;
       case'fit':closePanels();fit();break;
       case'arrange':arrangePage();break;
       case'reset-zoom':{const v=view();const cx=canvas.clientWidth/2,cy=canvas.clientHeight/2;setView({x:cx-(cx-v.x)/v.z,y:cy-(cy-v.y)/v.z,z:1});closePanels();applyView();break;}
@@ -700,6 +732,7 @@ SOFTWARE.
   });
   root.addEventListener('pointerdown',e=>{if(e.target.closest('[data-format]'))e.preventDefault();});
   root.addEventListener('input',e=>{
+    if(e.target.id==='mf-image-opacity')$('#mf-image-opacity-value').textContent=e.target.value+'%';
     if(editor&&['mf-title-input','mf-body-input'].includes(e.target.id)){
       const which=e.target.id==='mf-title-input'?'title':'body';
       editor[which+'Html']=cleanHTML(e.target.innerHTML);editor[which]=htmlText(editor[which+'Html']);scheduleSave();
@@ -712,12 +745,15 @@ SOFTWARE.
   });
 
   root.addEventListener('change',async e=>{
+    if(e.target.id==='mf-background-file'){await importBackgroundImage(e.target.files?.[0]);return;}
     if(e.target.id==='mf-file-input'){await importFile(e.target.files?.[0]);return;}
     if(['mf-theme','mf-background','mf-board-color'].includes(e.target.id)){
       snapshot();settings[e.target.id==='mf-theme'?'theme':e.target.id==='mf-background'?'background':'boardColor']=e.target.value;render();return;
     }
+    if(['mf-image-mode','mf-image-opacity'].includes(e.target.id)){
+      snapshot();if(e.target.id==='mf-image-mode')settings.backgroundImageMode=e.target.value;else settings.backgroundImageOpacity=Number(e.target.value)/100;render();updateImageControls();return;
+    }
     const n=byId(menuNote);if(!n||study)return;
-    if(e.target.id==='mf-custom-color'){snapshot();n.color=e.target.value;render();return;}
     if(e.target.id==='mf-topic'||e.target.id==='mf-mask'){
       snapshot();n[e.target.id==='mf-topic'?'topic':'mask']=e.target.value;render();
     }
@@ -758,6 +794,10 @@ SOFTWARE.
     if(editor&&(!el||el.dataset.note!==editor.id)){finishEditing(true);if(el)return;}
     closePanels();
     if(!desktop()&&!el)return;
+    if(!el&&!space&&e.button===0&&!study&&e.pointerType!=='touch'){
+      e.preventDefault();const previous=new Set(selected);if(!e.shiftKey)selected.clear();paintSelection();
+      drag={type:'selection',pointer:e.pointerId,startX:e.clientX,startY:e.clientY,previous,base:e.shiftKey?previous:new Set(),moved:false};canvas.setPointerCapture(e.pointerId);return;
+    }
     if(space||e.button===1||!el){
       if(e.button===1)e.preventDefault();
       if(!space&&e.button!==1){selected.clear();paintSelection();}
@@ -777,6 +817,15 @@ SOFTWARE.
   canvas.addEventListener('pointermove',e=>{
     if(!drag)return;
     const dx=e.clientX-drag.startX,dy=e.clientY-drag.startY;
+    if(drag.type==='selection'){
+      if(Math.abs(dx)+Math.abs(dy)<4&&!drag.moved)return;drag.moved=true;
+      const r=canvas.getBoundingClientRect(),v=view();
+      const left=Math.min(drag.startX,e.clientX)-r.left,top=Math.min(drag.startY,e.clientY)-r.top,right=Math.max(drag.startX,e.clientX)-r.left,bottom=Math.max(drag.startY,e.clientY)-r.top;
+      const rect=$('#mf-selection-box');rect.hidden=false;rect.style.left=left+'px';rect.style.top=top+'px';rect.style.width=(right-left)+'px';rect.style.height=(bottom-top)+'px';
+      selected=new Set(drag.base);
+      visibleNotes().forEach(n=>{const pos=positionOf(n),x=pos.x*v.z+v.x,y=pos.y*v.z+v.y;if(x+(n.w||242)*v.z>=left&&x<=right&&y+(n.h||230)*v.z>=top&&y<=bottom)selected.add(n.id);});
+      paintSelection();return;
+    }
     if(drag.type==='resize'){
       const n=byId(drag.id),pos=positionOf(n),west=drag.dir.includes('w'),north=drag.dir.includes('n');
       n.w=Math.max(160,Math.min(1600,drag.w+dx/view().z*(west?-1:1)));n.h=Math.max(120,Math.min(2000,drag.h+dy/view().z*(north?-1:1)));
@@ -791,12 +840,14 @@ SOFTWARE.
       const el=world.querySelector('[data-note="'+n.id+'"]');if(el){el.style.setProperty('--note-x',pos.x+'px');el.style.setProperty('--note-y',pos.y+'px');}
     }
   });
-  function endDrag(){
+  function endDrag(e){
+    if(drag?.type==='selection'){if(e?.type==='pointercancel')selected=new Set(drag.previous);$('#mf-selection-box').hidden=true;paintSelection();if(drag.moved)announce(selected.size+'개 메모를 선택했습니다.');}
     if(drag&&canvas.hasPointerCapture(drag.pointer))canvas.releasePointerCapture(drag.pointer);
     if(drag)scheduleSave();drag=null;
   }
   canvas.addEventListener('pointerup',endDrag);canvas.addEventListener('pointercancel',endDrag);
   canvas.addEventListener('wheel',e=>{
+    if(drag?.type==='selection'){e.preventDefault();return;}
     if(e.target.closest('[contenteditable],.mf-note-face')&&!(e.ctrlKey||e.metaKey))return;
     if(editor)finishEditing(true);
     e.preventDefault();closePanels();
@@ -811,8 +862,181 @@ SOFTWARE.
   document.addEventListener('pointerdown',e=>{
     if(!root.contains(e.target)){if(editor)finishEditing(true);closePanels();}
   });
+  let imageLoading=false;
+  function updateImageControls(){
+    const has=!!settings.backgroundImage;
+    $('#mf-image-name').textContent=has?(settings.backgroundName||'사용자 배경 이미지'):'선택된 이미지 없음';
+    $('#mf-image-mode').value=settings.backgroundImageMode||'cover';
+    $('#mf-image-opacity').value=Math.round((settings.backgroundImageOpacity??1)*100);
+    $('#mf-image-opacity-value').textContent=$('#mf-image-opacity').value+'%';
+    $('#mf-image-mode').disabled=!has;$('#mf-image-opacity').disabled=!has;
+    root.querySelector('[data-action="remove-background-image"]').disabled=!has;
+  }
+  function applyBackgroundImage(){
+    const layer=$('#mf-image-layer');layer.hidden=!settings.backgroundImage;
+    layer.style.backgroundImage=settings.backgroundImage?'url("'+settings.backgroundImage+'")':'none';
+    layer.style.backgroundSize=settings.backgroundImageMode==='tile'?'320px auto':settings.backgroundImageMode||'cover';
+    layer.style.backgroundRepeat=settings.backgroundImageMode==='tile'?'repeat':'no-repeat';
+    layer.style.opacity=settings.backgroundImageOpacity??1;
+  }
+  async function importBackgroundImage(file){
+    if(!file||imageLoading)return;
+    imageLoading=true;const status=$('#mf-image-status');status.textContent='이미지를 준비하고 있어요…';
+    let objectURL;
+    try{
+      if(!['image/png','image/jpeg','image/webp'].includes(file.type))throw Error('PNG, JPG, WebP 이미지 파일을 선택해 주세요.');
+      if(file.size>20*1024*1024)throw Error('20MB 이하의 이미지를 선택해 주세요.');
+      objectURL=URL.createObjectURL(file);const image=new Image();image.src=objectURL;await image.decode();
+      if(!image.naturalWidth||!image.naturalHeight)throw Error('이미지를 읽지 못했어요.');
+      let scale=Math.min(1,1600/Math.max(image.naturalWidth,image.naturalHeight)),encoded;
+      for(let attempt=0;attempt<8;attempt++){
+        const board=document.createElement('canvas');board.width=Math.max(1,Math.round(image.naturalWidth*scale));board.height=Math.max(1,Math.round(image.naturalHeight*scale));
+        const ctx=board.getContext('2d');if(!ctx)throw Error('이 브라우저에서 이미지 처리를 시작하지 못했어요.');
+        ctx.drawImage(image,0,0,board.width,board.height);encoded=board.toDataURL('image/webp',.85);
+        if(encoded.length<=1250000)break;scale*=.75;
+      }
+      if(!encoded||encoded.length>1250000)throw Error('이미지가 너무 커요. 더 작은 이미지를 선택해 주세요.');
+      snapshot();settings.backgroundImage=encoded;settings.backgroundName=file.name.slice(0,100);settings.backgroundImageMode='cover';settings.backgroundImageOpacity=1;
+      render();updateImageControls();status.textContent='배경 이미지를 적용했어요. 자동 저장과 JSON 백업에 함께 포함됩니다.';
+    }catch(error){status.textContent=error instanceof Error?error.message:'이미지를 열지 못했어요.';}
+    finally{if(objectURL)URL.revokeObjectURL(objectURL);imageLoading=false;$('#mf-background-file').value='';}
+  }
+
+  const clipboardType='application/x-moa-notes+json';
+  let boardPointer=null,lastPaste=null,colorDraft=null;
+  const colorDialog=$('#mf-color-dialog');
+  function typingTarget(target){return target instanceof Element&&!!target.closest('input,textarea,select,[contenteditable]');}
+  function boardClipboardContext(e){return root.isConnected&&!study&&!welcome.open&&!colorDialog.open&&!typingTarget(e.target)&&(root.contains(e.target)||e.target===document.body||e.target===document.documentElement);}
+  canvas.addEventListener('pointermove',e=>{boardPointer={x:e.clientX,y:e.clientY};});
+  canvas.addEventListener('pointerleave',()=>{boardPointer=null;});
+  document.addEventListener('copy',e=>{
+    if(!boardClipboardContext(e)||!picked().length||!e.clipboardData)return;
+    const originals=picked(),left=Math.min(...originals.map(n=>positionOf(n).x)),top=Math.min(...originals.map(n=>positionOf(n).y));
+    const value={format:'moa-note-clipboard',version:1,notes:originals.map(n=>({...clone(n),x:positionOf(n).x-left,y:positionOf(n).y-top,groupKey:n.group?ownerOf(n.id).id+':'+n.group:null}))};
+    const json=JSON.stringify(value),plain=originals.map(n=>[n.title,n.body].filter(Boolean).join('\n')).join('\n\n');
+    e.clipboardData.setData(clipboardType,json);
+    e.clipboardData.setData('text/plain',plain);
+    e.clipboardData.setData('text/html','<div data-moa-notes="'+esc(json)+'">'+esc(plain).replace(/\n/g,'<br>')+'</div>');
+    e.preventDefault();announce(originals.length+'개 메모를 복사했습니다. 원하는 페이지에서 Ctrl V로 붙여넣으세요.');
+  });
+  document.addEventListener('paste',e=>{
+    if(!boardClipboardContext(e)||!e.clipboardData)return;
+    let json=e.clipboardData.getData(clipboardType);
+    if(!json){
+      const html=e.clipboardData.getData('text/html');if(!html||html.length>20*1024*1024)return;
+      const t=document.createElement('template');t.innerHTML=html;json=t.content.querySelector('[data-moa-notes]')?.getAttribute('data-moa-notes');
+    }
+    if(!json)return;
+    e.preventDefault();
+    try{
+      if(json.length>10*1024*1024)throw Error('복사한 메모가 너무 많아요. JSON 파일 백업을 사용해 주세요.');
+      const raw=JSON.parse(json);
+      if(raw?.format!=='moa-note-clipboard'||raw.version!==1||!Array.isArray(raw.notes)||!raw.notes.length)throw Error('복사한 메모 형식이 올바르지 않아요.');
+      if(allNotes().length+raw.notes.length>5000)throw Error('한 보드에서는 메모를 5,000개까지 사용할 수 있어요.');
+      const loaded=validateFile({format:'moa-study-board',version:2,pages:[{id:'clipboard',name:'복사한 메모',notes:raw.notes,view:{x:0,y:0,z:1}}]});
+      if(editor)finishEditing(true);
+      const r=canvas.getBoundingClientRect(),v=view(),pointer=boardPointer||{x:r.left+canvas.clientWidth/2,y:r.top+canvas.clientHeight/2};
+      const anchor={x:(pointer.x-r.left-v.x)/v.z,y:(pointer.y-r.top-v.y)/v.z};
+      const repeat=lastPaste&&lastPaste.page===pageId&&lastPaste.overview===overview&&lastPaste.json===json&&Math.abs(lastPaste.x-anchor.x)<1&&Math.abs(lastPaste.y-anchor.y)<1?lastPaste.count+1:0;
+      lastPaste={...anchor,page:pageId,overview,json,count:repeat};
+      snapshot();const groups=new Map();
+      const copies=loaded.pages[0].notes.map((note,i)=>{
+        const n={...note,id:'paste-'+Date.now()+'-'+serial++,x:anchor.x+note.x+repeat*24/v.z,y:anchor.y+note.y+repeat*24/v.z,group:null};
+        const key=raw.notes[i].groupKey;
+        if(typeof key==='string'&&key.length<=220){if(!groups.has(key))groups.set(key,'group-'+serial++);n.group=groups.get(key);}
+        if(overview)overviewPositions.set(n.id,{x:n.x,y:n.y,manual:true});
+        return n;
+      });
+      page().notes.push(...copies);selected=new Set(copies.map(n=>n.id));closePanels();render();
+      announce(copies.length+'개 메모를 '+page().name+' 페이지에 붙여넣었습니다. Ctrl Z로 취소할 수 있어요.');
+    }catch(error){announce(error.message||'메모를 붙여넣지 못했어요.');}
+  });
+  function colorSelection(){return picked().length?picked():[byId(menuNote)].filter(Boolean);}
+  function rememberColor(hex){settings.recentColors=[hex,...(settings.recentColors||[]).filter(c=>c!==hex)].slice(0,8);}
+  function applyNoteColor(color,ids=colorSelection().map(n=>n.id)){
+    const notes=ids.map(byId).filter(Boolean);if(!notes.length)return;
+    if(!notes.some(n=>n.color!==color))return;
+    snapshot();notes.forEach(n=>n.color=color);if(/^#[0-9a-f]{6}$/i.test(color))rememberColor(color);render();
+  }
+  function hexToHSV(hex){
+    const [r,g,b]=hex.slice(1).match(/../g).map(x=>parseInt(x,16)/255),max=Math.max(r,g,b),min=Math.min(r,g,b),delta=max-min;
+    let h=0;if(delta){h=max===r?((g-b)/delta)%6:max===g?(b-r)/delta+2:(r-g)/delta+4;h=(h*60+360)%360;}
+    return {h,s:max?delta/max:0,v:max};
+  }
+  function hsvToHex(h,s,v){
+    const c=v*s,x=c*(1-Math.abs((h/60)%2-1)),m=v-c;
+    const rgb=h<60?[c,x,0]:h<120?[x,c,0]:h<180?[0,c,x]:h<240?[0,x,c]:h<300?[x,0,c]:[c,0,x];
+    return '#'+rgb.map(n=>Math.round((n+m)*255).toString(16).padStart(2,'0')).join('');
+  }
+  function visibleNoteHex(n){
+    if(/^#[0-9a-f]{6}$/i.test(n.color))return n.color.toLowerCase();
+    const el=world.querySelector('[data-note="'+n.id+'"]');const values=(el?getComputedStyle(el).backgroundColor:'').match(/[\d.]+/g);
+    return values&&values.length>=3?'#'+values.slice(0,3).map(v=>Math.round(Number(v)).toString(16).padStart(2,'0')).join(''):'#fff0bd';
+  }
+  function previewNoteColors(){
+    if(!colorDraft)return;
+    colorDraft.ids.forEach(id=>{const el=world.querySelector('[data-note="'+id+'"]');if(el){el.dataset.color=colorDraft.hex;el.style.setProperty('--note-color',colorDraft.hex);el.style.setProperty('--note-ink',contrast(colorDraft.hex));}});
+  }
+  function refreshPalette(updateHex=true){
+    const d=colorDraft;if(!d)return;
+    d.hex=hsvToHex(d.h,d.s,d.v);
+    const pad=$('#mf-color-pad');pad.style.setProperty('--palette-hue','hsl('+d.h+' 100% 50%)');
+    $('#mf-color-cursor').style.left=d.s*100+'%';$('#mf-color-cursor').style.top=(1-d.v)*100+'%';
+    $('#mf-color-hue').value=d.h;$('#mf-color-saturation').value=Math.round(d.s*100);$('#mf-color-value').value=Math.round(d.v*100);
+    $('#mf-color-swatch').style.background=d.hex;$('#mf-color-code').textContent=d.hex.toUpperCase();
+    if(updateHex)$('#mf-color-hex').value=d.hex.toUpperCase();
+    colorDialog.querySelectorAll('[data-palette-color]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.paletteColor===d.hex)));
+    $('#mf-color-hex').removeAttribute('aria-invalid');$('#mf-color-apply').disabled=false;$('#mf-color-error').textContent='';
+    previewNoteColors();
+  }
+  function openPalette(){
+    if(study)return;if(editor)finishEditing(true);
+    const notes=colorSelection();if(!notes.length)return;
+    const hex=visibleNoteHex(notes[0]);colorDraft={ids:notes.map(n=>n.id),hex,...hexToHSV(hex)};
+    closePanels();$('#mf-color-count').textContent=notes.length>1?notes.length+'개 메모에 함께 적용 · 선택하는 즉시 미리보기':'선택하는 즉시 메모에 미리보기';
+    $('#mf-recent-colors').innerHTML=(settings.recentColors||[]).map(hex=>'<button type="button" class="mf-recent-swatch" data-palette-color="'+hex+'" style="background:'+hex+'" aria-label="최근 색상 '+hex+'"></button>').join('')||'<span class="mf-panel-help">적용한 색상이 여기에 모여요.</span>';
+    const defaults=[['#fff0bd','크림 노랑'],['#e0efe4','민트'],['#eee5f7','라일락'],['#ffd8d8','연분홍'],['#ffe2c5','살구'],['#d9ebff','하늘'],['#ffd95a','노랑'],['#a8d5ba','초록'],['#c3b1e1','보라'],['#f69ca7','분홍'],['#ffb36b','주황'],['#87baf5','파랑'],['#ffffff','흰색'],['#e5e7eb','회색'],['#8b94a5','진회색'],['#354052','남색'],['#76634d','갈색'],['#222222','검정']];
+    $('#mf-default-palette').innerHTML=defaults.map(([hex,name])=>'<button type="button" class="mf-default-swatch" data-palette-color="'+hex+'" style="background:'+hex+'" aria-label="기본 색상 '+name+' '+hex+'"></button>').join('');
+    refreshPalette();colorDialog.showModal();
+  }
+  function closePalette(apply=false){
+    if(!colorDraft)return;
+    if(apply&&$('#mf-color-apply').disabled)return;
+    const draft=colorDraft;colorDraft=null;colorDialog.close();
+    if(apply){applyNoteColor(draft.hex,draft.ids);rememberColor(draft.hex);render();announce(draft.ids.length+'개 메모에 색상을 적용했습니다.');}
+    else{render();announce('색상 변경을 취소했습니다.');}
+  }
+  colorDialog.addEventListener('cancel',e=>{e.preventDefault();closePalette();});
+  colorDialog.addEventListener('input',e=>{
+    if(!colorDraft)return;
+    if(e.target.id==='mf-color-hex'){
+      const value=e.target.value.trim();
+      if(!/^#?[0-9a-f]{6}$/i.test(value)){$('#mf-color-hex').setAttribute('aria-invalid','true');$('#mf-color-apply').disabled=true;$('#mf-color-error').textContent='#과 6자리 색상 코드를 입력해 주세요.';return;}
+      Object.assign(colorDraft,hexToHSV('#'+value.replace(/^#/,'')));refreshPalette(false);return;
+    }
+    if(e.target.id==='mf-color-hue')colorDraft.h=Number(e.target.value);
+    if(e.target.id==='mf-color-saturation')colorDraft.s=Number(e.target.value)/100;
+    if(e.target.id==='mf-color-value')colorDraft.v=Number(e.target.value)/100;
+    refreshPalette();
+  });
+  colorDialog.addEventListener('click',e=>{
+    const b=e.target.closest('button');if(!b)return;
+    if(b.dataset.paletteColor){Object.assign(colorDraft,hexToHSV(b.dataset.paletteColor));refreshPalette();}
+    if(b.dataset.action==='apply-color')closePalette(true);
+    if(b.dataset.action==='cancel-color')closePalette();
+  });
+  const colorPad=$('#mf-color-pad');
+  function pickPad(e){
+    if(!colorDraft)return;const rect=colorPad.getBoundingClientRect();
+    colorDraft.s=Math.max(0,Math.min(1,(e.clientX-rect.left)/rect.width));colorDraft.v=1-Math.max(0,Math.min(1,(e.clientY-rect.top)/rect.height));refreshPalette();
+  }
+  colorPad.addEventListener('pointerdown',e=>{if(e.button!==0)return;e.preventDefault();colorPad.setPointerCapture(e.pointerId);pickPad(e);});
+  colorPad.addEventListener('pointermove',e=>{if(colorPad.hasPointerCapture(e.pointerId))pickPad(e);});
+  colorPad.addEventListener('pointerup',e=>{if(colorPad.hasPointerCapture(e.pointerId))colorPad.releasePointerCapture(e.pointerId);});
+
   document.addEventListener('keydown',e=>{
     if(!root.isConnected||e.isComposing)return;
+    if(colorDialog.open){if(e.key==='Escape'){e.preventDefault();closePalette();}else if(e.key==='Enter'&&!e.isComposing){e.preventDefault();closePalette(true);}return;}
     if(welcome.open){if(e.key==='Escape'){e.preventDefault();closeWelcome();}return;}
     const active=document.activeElement;
     const physicalKey=/^Key[A-Z]$/.test(e.code)?e.code.slice(3).toLowerCase():e.key.toLowerCase();
@@ -841,7 +1065,7 @@ SOFTWARE.
     if(key==='n'&&!study){e.preventDefault();const r=canvas.getBoundingClientRect();addAt(r.left+canvas.clientWidth/2,r.top+canvas.clientHeight/2);}
     if(key==='enter'&&!study&&selected.size===1){e.preventDefault();startEditing([...selected][0]);}
     if((key==='delete'||key==='backspace')&&!study&&menu.hidden&&pagesPanel.hidden){e.preventDefault();remove();}
-    if(key==='escape'){closePanels();selected.clear();paintSelection();}
+    if(key==='escape'){if(drag){if(drag.type==='selection')selected=new Set(drag.previous);endDrag();}closePanels();selected.clear();paintSelection();}
     if(e.code==='Space'&&desktop()){e.preventDefault();space=true;updateMode();}
   });
   document.addEventListener('keyup',e=>{if(e.code==='Space'){space=false;updateMode();}});
@@ -850,7 +1074,7 @@ SOFTWARE.
   let width=canvas.clientWidth,timer;
   if(window.ResizeObserver)new ResizeObserver(()=>{
     if(width===canvas.clientWidth)return;width=canvas.clientWidth;
-    clearTimeout(timer);timer=setTimeout(()=>{closePanels();if(overview)render();applyView();},100);
+    clearTimeout(timer);timer=setTimeout(()=>{if(overview)render();applyView();if(!menu.hidden&&menuPoint)positionMenu(menuPoint.x,menuPoint.y);},100);
   }).observe(canvas);
 })();
 </script>
@@ -919,6 +1143,45 @@ html,body {height:100%;overflow:hidden;overscroll-behavior:none}
 #moa-board .mf-storage-warning {position:fixed;z-index:45;bottom:12px;left:12px;right:12px;margin:auto;max-width:700px;border:1px solid var(--mf-danger);border-radius:8px;background:var(--mf-panel);padding:12px;display:flex;align-items:center;flex-wrap:wrap;gap:8px;font-size:12px;color:var(--mf-ink)}
 #moa-board .mf-storage-warning button {border:1px solid var(--mf-line);padding:5px 8px;border-radius:4px}
 @media(max-width:600px){#moa-board .mf-world{position:absolute;inset:0 auto auto 0;width:0;height:0;padding:0;display:block;transform-origin:0 0}#moa-board .mf-note{width:var(--note-w,242px);min-height:120px}#moa-board #mf-welcome{padding:18px}#moa-board .mf-pages{top:70px}#moa-board .mf-rich{font-size:16px!important}}
+</style>
+<style>
+#moa-board #mf-color-dialog{width:350px;max-width:calc(100% - 24px);max-height:calc(100dvh - 32px);overflow:auto;background:var(--mf-panel);color:var(--mf-ink);border:1px solid var(--mf-line);border-radius:14px;padding:20px;box-shadow:0 12px 50px var(--mf-shadow)}
+#moa-board #mf-color-dialog::backdrop{background:light-dark(#24202f18,#00000030)}
+#moa-board #mf-color-title{font-size:17px;font-weight:500;margin:0}
+#moa-board #mf-color-pad{height:160px;position:relative;touch-action:none;border-radius:6px;background:linear-gradient(to top,#000,transparent),linear-gradient(to right,#fff,transparent),var(--palette-hue);cursor:crosshair;overflow:hidden;margin-top:12px}
+#moa-board #mf-color-cursor{position:absolute;width:12px;height:12px;border:2px solid #fff;border-radius:50%;box-shadow:0 0 0 1px #242424;transform:translate(-50%,-50%);pointer-events:none}
+#moa-board .mf-palette-slider{display:flex;align-items:center;gap:12px;margin:12px 0;font-size:12px}
+#moa-board .mf-palette-slider input{flex:1;min-width:0}
+#moa-board #mf-color-hue{appearance:none;height:12px;border-radius:6px;background:linear-gradient(to right,#f00,#ff0,#0f0,#0ff,#00f,#f0f,#f00)}
+#moa-board .mf-palette-adjustments{display:flex;gap:12px;font-size:12px}
+#moa-board .mf-palette-adjustments label{display:grid;gap:3px;min-width:0;flex:1}
+#moa-board .mf-palette-adjustments input{width:100%;min-width:0;accent-color:var(--mf-accent)}
+#moa-board .mf-palette-code{display:flex;align-items:center;gap:9px;margin-top:14px;font-size:12px}
+#moa-board #mf-color-swatch{width:30px;height:30px;border:1px solid var(--mf-line);border-radius:5px;flex-shrink:0}
+#moa-board #mf-color-hex{padding:7px 8px;background:var(--mf-panel);border:1px solid var(--mf-line);border-radius:5px;width:100px;min-width:0;font:13px ui-monospace,monospace}
+#moa-board #mf-color-hex[aria-invalid=true]{border-color:var(--mf-danger)}
+#moa-board #mf-color-code{font-size:11px;color:var(--mf-sub)}
+#moa-board #mf-color-error{min-height:18px;margin:5px 0;color:var(--mf-danger);font-size:11px}
+#moa-board #mf-recent-colors,#moa-board .mf-menu-recent{display:flex;flex-wrap:wrap;gap:8px}
+#moa-board .mf-menu-recent:empty{display:none}
+#moa-board .mf-menu-recent{padding:4px 9px 8px;gap:7px}
+#moa-board .mf-recent-swatch,#moa-board .mf-menu-recent button{width:26px;height:26px;border:1px solid var(--mf-line);border-radius:5px}
+#moa-board .mf-menu-recent button{width:20px;height:20px}
+#moa-board #mf-color-dialog .mf-welcome-actions button{padding:9px;border:1px solid var(--mf-line);border-radius:6px}
+#moa-board #mf-color-dialog .mf-welcome-start{background:var(--mf-accent);color:var(--mf-on-accent)}
+</style>
+<style>
+#moa-board #mf-image-layer{position:absolute;inset:0;pointer-events:none;z-index:0;background-position:center}
+#moa-board .mf-world{z-index:1}
+#moa-board #mf-selection-box{position:absolute;z-index:15;pointer-events:none;border:1px solid var(--mf-accent);background:color-mix(in srgb,var(--mf-accent) 13%,transparent);border-radius:2px}
+#moa-board .mf-image-controls{margin-top:14px;padding-top:12px;border-top:1px solid var(--mf-line);font-size:12px}
+#moa-board #mf-image-name{overflow-wrap:anywhere;margin:5px 0}
+#moa-board #mf-image-opacity{width:100px;min-width:0;accent-color:var(--mf-accent)}
+#moa-board .mf-palette-section-title{font-size:12px;font-weight:500;margin:12px 0 7px}
+#moa-board .mf-default-palette-title{border-top:1px solid var(--mf-line);padding-top:12px;margin-top:12px}
+#moa-board #mf-default-palette{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}
+#moa-board .mf-default-swatch{height:26px;min-width:0;border:1px solid var(--mf-line);border-radius:4px}
+#moa-board [data-palette-color][aria-pressed=true]{outline:2px solid var(--mf-accent);outline-offset:2px}
 </style>
 <noscript>모아보드를 사용하려면 브라우저에서 JavaScript를 활성화해 주세요.</noscript>
 </body>
