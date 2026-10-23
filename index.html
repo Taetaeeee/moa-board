@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="자유롭게 메모를 배치하고, 가리고, 확인하며 공부하는 로그인 없는 암기 화이트보드.">
   <meta name="color-scheme" content="light dark">
-  <meta name="moa-build" content="2026-10-23-select-palette-image-v4">
+  <meta name="moa-build" content="2026-10-23-menu-bullets-arrows-v5">
   <title>모아보드 · 암기 화이트보드</title>
   <!-- Bundled Lucide icons. The complete ISC license is included below. -->
   <!-- ISC License
@@ -76,12 +76,14 @@ SOFTWARE.
 </head>
 <body>
 <div id="moa-board" data-theme="basic" aria-label="메모에 집중하는 암기 화이트보드">
-  <div class="mf-modes" role="group" aria-label="보드 모드">
+  <div class="mf-modes" role="group" aria-label="보드 모드와 메뉴">
     <button type="button" id="mf-edit" class="cursor-interaction" aria-pressed="true"><i data-lucide="mouse-pointer-2" aria-hidden="true"></i>편집 모드</button>
     <button type="button" id="mf-study" class="cursor-interaction" aria-pressed="false"><i data-lucide="brain" aria-hidden="true"></i>암기 모드<kbd>M</kbd></button>
+    <button type="button" id="mf-menu-toggle" data-action="toggle-pages" aria-expanded="false" aria-controls="mf-pages">메뉴 <kbd>P</kbd></button>
   </div>
   <div id="mf-canvas" class="mf-canvas" aria-label="빈 공간을 우클릭해서 메모를 붙이는 보드">
     <div id="mf-image-layer" aria-hidden="true" hidden></div>
+    <svg id="mf-arrows" xmlns="http://www.w3.org/2000/svg" aria-label="메모 연결 화살표"></svg>
     <div id="mf-world" class="mf-world"></div>
     <div id="mf-selection-box" aria-hidden="true" hidden></div>
   </div>
@@ -121,9 +123,9 @@ SOFTWARE.
     </div>
     <p id="mf-welcome-intro">빈 보드에 메모를 붙이고, 가리면서 외워보세요.</p>
     <ul class="mf-welcome-guide">
-      <li><span class="mf-guide-icon"><i data-lucide="mouse-pointer-2" aria-hidden="true"></i></span><div><strong>메모 만들고 꾸미기</strong><span>빈 곳 <b>우클릭</b>으로 추가, 더블클릭해 편집.<br>텍스트를 선택해 굵게·밑줄·형광펜을 적용해요.<br>메모를 드래그해 이동하고 모서리로 크기를 바꿔요.<br><kbd>Ctrl C</kbd> 복사 · <kbd>Ctrl V</kbd> 붙여넣기.<br><kbd>Ctrl</kbd> + 휠로 확대·축소, 빈 곳 드래그로 여러 메모 선택.<br><kbd>Space</kbd> + 드래그 / 가운데 버튼으로 보드 이동.</span></div></li>
+      <li><span class="mf-guide-icon"><i data-lucide="mouse-pointer-2" aria-hidden="true"></i></span><div><strong>메모 만들고 꾸미기</strong><span>빈 곳 <b>우클릭</b>으로 추가, 더블클릭해 편집.<br>텍스트 강조와 <b>• 목록</b> 전환을 사용할 수 있어요.<br>메모 우클릭 → <b>화살표 연결</b> → 도착 메모 클릭.<br>메모를 드래그해 이동하고 모서리로 크기를 바꿔요.<br><kbd>Ctrl C</kbd> 복사 · <kbd>Ctrl V</kbd> 붙여넣기.<br><kbd>Ctrl</kbd> + 휠로 확대·축소, 빈 곳 드래그로 여러 메모 선택.<br><kbd>Space</kbd> + 드래그 / 가운데 버튼으로 보드 이동.</span></div></li>
       <li><span class="mf-guide-icon"><i data-lucide="brain" aria-hidden="true"></i></span><div><strong>가리고, 떠올리고, 확인하기</strong><span>암기 모드에서 메모를 <b>우클릭</b>하면<br>블러가 켜지고, 다시 누르면 내용이 보여요.</span></div></li>
-      <li><span class="mf-guide-icon"><i data-lucide="files" aria-hidden="true"></i></span><div><strong>P 키는 보드의 전체 메뉴예요</strong><span><kbd>P</kbd> → 페이지 추가·이동 / 전체 모아보기<br>현재 페이지 정렬 / 파일 백업·불러오기 / 테마·배경 설정.<br><kbd>F</kbd>는 멀리 흩어진 메모까지 화면에 맞춰요.</span></div></li>
+      <li><span class="mf-guide-icon"><i data-lucide="files" aria-hidden="true"></i></span><div><strong>상단 메뉴 P 버튼을 눌러보세요</strong><span>상단 <b>메뉴 P</b> 또는 <kbd>P</kbd> → 페이지 추가·이동 / 전체 모아보기<br>현재 페이지 정렬 / 파일 백업·불러오기 / 테마·배경 설정.<br><kbd>F</kbd>는 멀리 흩어진 메모까지 화면에 맞춰요.</span></div></li>
       <li><span class="mf-guide-icon"><i data-lucide="download" aria-hidden="true"></i></span><div><strong>자동 저장하고, 파일로도 백업해요</strong><span>같은 브라우저에서는 새로고침해도 자동 복원돼요.<br>다른 PC로 옮길 때는 <kbd>Ctrl S</kbd>로 JSON 백업,<br><kbd>Ctrl O</kbd>로 불러오기. 브라우저 데이터 삭제에 대비해 파일도 보관해 주세요.</span></div></li>
     </ul>
     <label class="mf-welcome-preference"><input id="mf-welcome-hide" type="checkbox">다음부터 보지 않기</label>
@@ -144,6 +146,7 @@ SOFTWARE.
     <p class="mf-palette-section-title mf-default-palette-title">기본 팔레트</p><div id="mf-default-palette" aria-label="기본 색상 팔레트"></div>
     <div class="mf-welcome-actions"><button type="button" data-action="cancel-color">취소 <kbd>Esc</kbd></button><button type="button" id="mf-color-apply" data-action="apply-color" class="mf-welcome-start">적용</button></div>
   </dialog>
+  <div id="mf-connection-status" role="status" hidden><span id="mf-connection-message"></span><button type="button" data-action="reverse-connection">방향 반전</button><button type="button" data-action="delete-connection">화살표 삭제</button><button type="button" data-action="cancel-connection">닫기 <kbd>Esc</kbd></button></div>
   <div id="mf-storage-warning" class="mf-storage-warning" role="alert" hidden><span id="mf-storage-message"></span><button type="button" data-action="export-file">파일로 백업</button><button type="button" data-action="reload-saved" hidden>다른 탭의 보드 불러오기</button><button type="button" data-action="keep-current" hidden>현재 보드로 저장</button></div>
   <div id="mf-live" class="mf-live" aria-live="polite"></div>
 </div>
@@ -263,7 +266,7 @@ SOFTWARE.
   const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const topics={network:'네트워크',database:'데이터베이스',security:'정보보안',general:'미분류'};
   let settings={theme:'basic',background:'dots',boardColor:null,recentColors:[],backgroundImage:null,backgroundName:'',backgroundImageMode:'cover',backgroundImageOpacity:1};
-  const data={pages:[{id:'page-1',name:'새 페이지',view:{x:0,y:0,z:1},notes:[]}]};
+  const data={connections:[],pages:[{id:'page-1',name:'새 페이지',view:{x:0,y:0,z:1},notes:[]}]};
   let pageId='page-1',overview=false,overviewView={x:0,y:0,z:1},overviewPositions=new Map(),study=false,selected=new Set(),editor=null,drag=null,space=false,serial=1,history=[],menuNote=null,menuPoint=null;
   const storageKey='moa-board.autosave.v2:'+location.pathname.replace(/index\.html$/,'');
   const backupKey=storageKey+'.previous';
@@ -278,13 +281,13 @@ SOFTWARE.
       if(['script','style','iframe','object','embed','svg','math','img','input','button','template'].includes(tag))return '';
       if(tag==='br')return '<br>';
       const content=[...node.childNodes].map(walk).join('');
-      if(['strong','b','u','mark'].includes(tag)){const safe=tag==='b'?'strong':tag;return '<'+safe+'>'+content+'</'+safe+'>';}
+      if(['strong','b','u','mark','ul','li'].includes(tag)){const safe=tag==='b'?'strong':tag;return '<'+safe+'>'+content+'</'+safe+'>';}
       return (['div','p','li'].includes(tag)&&node.previousSibling?'<br>':'')+content;
     }
     return [...template.content.childNodes].map(walk).join('');
   }
   function rich(html,text){return typeof html==='string'?cleanHTML(html):esc(text||'').replace(/\n/g,'<br>');}
-  function htmlText(html){const t=document.createElement('template');t.innerHTML=cleanHTML(html);t.content.querySelectorAll('br').forEach(el=>el.replaceWith(document.createTextNode('\n')));return t.content.textContent.replace(/\u00a0/g,' ');}
+  function htmlText(html){const t=document.createElement('template');t.innerHTML=cleanHTML(html);t.content.querySelectorAll('br').forEach(el=>el.replaceWith(document.createTextNode('\n')));t.content.querySelectorAll('li').forEach(el=>el.append(document.createTextNode('\n')));return t.content.textContent.replace(/\u00a0/g,' ').replace(/\n$/,'');}
   function contrast(hex){const c=hex.slice(1).match(/../g).map(x=>{const v=parseInt(x,16)/255;return v<=.04045?v/12.92:((v+.055)/1.055)**2.4;});return .2126*c[0]+.7152*c[1]+.0722*c[2]>.179?'#242424':'#ffffff';}
   function validSettings(raw){
     const out={theme:'basic',background:'dots',boardColor:null,recentColors:[],backgroundImage:null,backgroundName:'',backgroundImageMode:'cover',backgroundImageOpacity:1};
@@ -312,7 +315,7 @@ SOFTWARE.
   function makePayload(){
     const pages=clone(data.pages);
     if(editor){const n=pages.flatMap(p=>p.notes).find(n=>n.id===editor.id);if(n)Object.assign(n,{title:editor.title,body:editor.body,titleHtml:cleanHTML(editor.titleHtml),bodyHtml:cleanHTML(editor.bodyHtml)});}
-    return {format:'moa-study-board',version:2,savedAt:new Date().toISOString(),settings:clone(settings),pages,state:{pageId,overview,overviewView,overviewPositions:[...overviewPositions],study,serial}};
+    return {format:'moa-study-board',version:2,savedAt:new Date().toISOString(),settings:clone(settings),pages,connections:clone(data.connections),state:{pageId,overview,overviewView,overviewPositions:[...overviewPositions],study,serial}};
   }
   function signature(){const value=makePayload();delete value.savedAt;return JSON.stringify(value);}
   function saveStatusText(){return storageConflict?'다른 탭의 변경이 있어 자동 저장이 멈췄어요.':storageError?'자동 저장 실패 · JSON 파일로 백업해 주세요.':savedAt?'이 브라우저에 자동 저장됨 · '+new Date(savedAt).toLocaleTimeString('ko-KR')+' · 확대 '+Math.round(view().z*1000)/10+'%':'변경하면 이 브라우저에 자동 저장돼요.';}
@@ -343,7 +346,7 @@ SOFTWARE.
     }
   }
   function applyLoaded(loaded){
-    settings=loaded.settings;data.pages=loaded.pages;pageId=loaded.pageId;overview=loaded.overview;overviewView=loaded.overviewView;overviewPositions=new Map(loaded.overviewPositions);study=loaded.study;serial=Math.max(serial,loaded.serial);editor=null;selected.clear();drag=null;
+    settings=loaded.settings;data.pages=loaded.pages;data.connections=loaded.connections;pageId=loaded.pageId;overview=loaded.overview;overviewView=loaded.overviewView;overviewPositions=new Map(loaded.overviewPositions);study=loaded.study;serial=Math.max(serial,loaded.serial);editor=null;selected.clear();drag=null;connectionStart=null;selectedConnection=null;
   }
   function restoreLocal(){
     let raw;
@@ -433,19 +436,20 @@ SOFTWARE.
   }
   function dropNote(id){
     const owner=ownerOf(id);if(owner)owner.notes=owner.notes.filter(n=>n.id!==id);
+    data.connections=data.connections.filter(edge=>edge.from!==id&&edge.to!==id);
     overviewPositions.delete(id);selected.delete(id);
   }
   const desktop=()=>true;
   function icons(){if(window.lucide)window.lucide.createIcons({attrs:{width:16,height:16}});}
   function announce(s){$('#mf-live').textContent=s;}
-  function snapshot(){history.push(JSON.stringify({settings,pages:data.pages,pageId,overview,overviewView,overviewPositions:[...overviewPositions],study,serial}));if(history.length>30)history.shift();}
-  function closePanels(){menu.hidden=true;pagesPanel.hidden=true;menuNote=null;}
+  function snapshot(){history.push(JSON.stringify({settings,pages:data.pages,connections:data.connections,pageId,overview,overviewView,overviewPositions:[...overviewPositions],study,serial}));if(history.length>30)history.shift();}
+  function closePanels(){menu.hidden=true;pagesPanel.hidden=true;$('#mf-menu-toggle').setAttribute('aria-expanded','false');menuNote=null;}
   function updateMode(){
     $('#mf-edit').setAttribute('aria-pressed',String(!study));
     $('#mf-study').setAttribute('aria-pressed',String(study));
     canvas.classList.toggle('mf-panning',space);
   }
-  function paintSelection(){world.querySelectorAll('[data-note]').forEach(el=>el.classList.toggle('mf-selected',!study&&selected.has(el.dataset.note)));}
+  function paintSelection(){if(selected.size)selectedConnection=null;renderConnections();world.querySelectorAll('[data-note]').forEach(el=>el.classList.toggle('mf-selected',!study&&selected.has(el.dataset.note)));}
   function render(){
     if(overview)syncOverview();
     applySettings();
@@ -456,7 +460,7 @@ SOFTWARE.
       const pos=positionOf(n),source=overview?'<span class="mf-note-source">'+esc(ownerOf(n.id).name)+'</span>':'';
       let inside;
       if(isEditing){
-        inside=source+'<div class="mf-rich-toolbar" role="toolbar" aria-label="텍스트 강조"><button type="button" data-format="strong" aria-label="굵게"><strong>B</strong></button><button type="button" data-format="u" aria-label="밑줄"><u>U</u></button><button type="button" data-format="mark" aria-label="형광펜"><mark>형광펜</mark></button></div><div class="mf-edit-fields"><div id="mf-title-input" class="mf-rich" contenteditable="true" role="textbox" aria-label="메모 제목" data-placeholder="질문 또는 제목">'+editor.titleHtml+'</div><div id="mf-body-input" class="mf-rich" contenteditable="true" role="textbox" aria-multiline="true" aria-label="메모 본문" data-placeholder="기억할 내용을 적어보세요">'+editor.bodyHtml+'</div></div><p class="mf-editor-hint">글자를 선택한 뒤 강조 버튼 · Ctrl Enter 완료</p><div class="mf-editor-actions"><button type="button" data-action="cancel-note">취소</button><button type="button" data-action="save-note">완료</button></div>';
+        inside=source+'<div class="mf-rich-toolbar" role="toolbar" aria-label="텍스트 강조"><button type="button" data-format="strong" aria-label="굵게"><strong>B</strong></button><button type="button" data-format="u" aria-label="밑줄"><u>U</u></button><button type="button" data-format="mark" aria-label="형광펜"><mark>형광펜</mark></button><button type="button" id="mf-bullets" data-action="toggle-bullets" aria-label="본문 글머리 기호 전환" aria-pressed="'+(/<ul>/.test(editor.bodyHtml))+'">• 목록</button></div><div class="mf-edit-fields"><div id="mf-title-input" class="mf-rich" contenteditable="true" role="textbox" aria-label="메모 제목" data-placeholder="질문 또는 제목">'+editor.titleHtml+'</div><div id="mf-body-input" class="mf-rich" contenteditable="true" role="textbox" aria-multiline="true" aria-label="메모 본문" data-placeholder="기억할 내용을 적어보세요">'+editor.bodyHtml+'</div></div><p class="mf-editor-hint">글자를 선택한 뒤 강조 버튼 · Ctrl Enter 완료</p><div class="mf-editor-actions"><button type="button" data-action="cancel-note">취소</button><button type="button" data-action="save-note">완료</button></div>';
       }else{
         inside='<button type="button" class="mf-note-face cursor-interaction" data-face="'+n.id+'" aria-label="'+(masked&&n.mask==='all'?'가려진 메모':esc(n.title.replace(/\n/g,' ')||'메모'))+'">'+source+(n.topic?'<span class="mf-note-topic">'+esc(n.topic)+'</span>':'')+'<span class="mf-note-title" '+(masked&&n.mask==='all'?'aria-hidden="true"':'')+'>'+rich(n.titleHtml,n.title)+'</span><span class="mf-note-body" '+(masked?'aria-hidden="true"':'')+'>'+rich(n.bodyHtml,n.body)+'</span></button>';
       }
@@ -469,7 +473,7 @@ SOFTWARE.
   }
   function applyView(){
     const v=view();world.style.transform='translate('+v.x+'px,'+v.y+'px) scale('+v.z+')';
-    canvas.style.backgroundSize=Math.max(8,23*v.z)+'px '+Math.max(8,23*v.z)+'px';canvas.style.backgroundPosition=v.x+'px '+v.y+'px';scheduleSave();world.style.setProperty('--world-transform',world.style.transform);
+    canvas.style.backgroundSize=Math.max(8,23*v.z)+'px '+Math.max(8,23*v.z)+'px';canvas.style.backgroundPosition=v.x+'px '+v.y+'px';scheduleSave();world.style.setProperty('--world-transform',world.style.transform);renderConnections();
   }
   function fit(){
     if(!desktop()){applyView();return;}
@@ -536,12 +540,13 @@ SOFTWARE.
   }
   function openMenu(id,x,y){
     if(study)return;
+    connectionStart=null;selectedConnection=null;connectionStatus();
     if(editor)finishEditing(true);
-    pagesPanel.hidden=true;menuNote=id;menuPoint={x,y};
+    pagesPanel.hidden=true;$('#mf-menu-toggle').setAttribute('aria-expanded','false');menuNote=id;menuPoint={x,y};
     const n=byId(id);
     if(!selected.has(id))selected=new Set([id]);
     paintSelection();
-    menu.innerHTML='<button type="button" class="mf-menu-item cursor-interaction" data-action="edit-note">'+icon('pencil')+'메모 편집<kbd>Enter</kbd></button><div class="mf-menu-row"><span>색상</span><div class="mf-colors">'+[['yellow','노랑'],['mint','민트'],['lilac','라일락']].map(([id,name])=>'<button type="button" class="cursor-interaction" data-color="'+id+'" aria-label="'+name+'" aria-pressed="'+(n.color===id)+'"></button>').join('')+'</div></div><button type="button" class="mf-menu-item" data-action="open-palette">사용자 색상 · 팔레트…</button><div class="mf-menu-recent">'+(settings.recentColors||[]).map(hex=>'<button type="button" data-recent-color="'+hex+'" style="background:'+hex+'" aria-label="최근 색상 '+hex+'"></button>').join('')+'</div><label class="mf-menu-row"><span>분류</span><input type="text" id="mf-topic" aria-label="메모 분류" maxlength="60" placeholder="직접 입력 · 비우면 미분류" value="'+esc(n.topic)+'"></label><label class="mf-menu-row"><span>가림</span><select id="mf-mask" aria-label="가릴 범위"><option value="body" '+(n.mask==='body'?'selected':'')+'>본문만</option><option value="all" '+(n.mask==='all'?'selected':'')+'>메모 전체</option></select></label><div class="mf-menu-divider"></div><button type="button" class="mf-menu-item cursor-interaction" data-action="group" '+(picked().length<2?'disabled':'')+'>'+icon('group')+'선택 메모 그룹화<kbd>Ctrl G</kbd></button><button type="button" class="mf-menu-item cursor-interaction" data-action="ungroup" '+(!n.group?'disabled':'')+'>'+icon('ungroup')+'그룹 해제</button><button type="button" class="mf-menu-item cursor-interaction" data-action="duplicate">'+icon('copy')+'복제<kbd>Ctrl D</kbd></button><button type="button" class="mf-menu-item mf-danger cursor-interaction" data-action="delete">'+icon('trash-2')+'삭제<kbd>Del</kbd></button><div class="mf-menu-divider"></div><button type="button" class="mf-menu-item cursor-interaction" data-action="pages">'+icon('files')+'페이지<kbd>P</kbd></button>';
+    menu.innerHTML='<button type="button" class="mf-menu-item mf-link-launch" data-action="start-connection">→ 이 메모에서 화살표 연결</button><button type="button" class="mf-menu-item cursor-interaction" data-action="edit-note">'+icon('pencil')+'메모 편집<kbd>Enter</kbd></button><div class="mf-menu-row"><span>색상</span><div class="mf-colors">'+[['yellow','노랑'],['mint','민트'],['lilac','라일락']].map(([id,name])=>'<button type="button" class="cursor-interaction" data-color="'+id+'" aria-label="'+name+'" aria-pressed="'+(n.color===id)+'"></button>').join('')+'</div></div><button type="button" class="mf-menu-item mf-palette-launch" data-action="open-palette"><span class="mf-palette-symbol" aria-hidden="true"></span>색상 팔레트 열기 <span aria-hidden="true">↗</span></button><div class="mf-menu-recent">'+(settings.recentColors||[]).map(hex=>'<button type="button" data-recent-color="'+hex+'" style="background:'+hex+'" aria-label="최근 색상 '+hex+'"></button>').join('')+'</div><label class="mf-menu-row"><span>분류</span><input type="text" id="mf-topic" aria-label="메모 분류" maxlength="60" placeholder="직접 입력 · 비우면 미분류" value="'+esc(n.topic)+'"></label><label class="mf-menu-row"><span>가림</span><select id="mf-mask" aria-label="가릴 범위"><option value="body" '+(n.mask==='body'?'selected':'')+'>본문만</option><option value="all" '+(n.mask==='all'?'selected':'')+'>메모 전체</option></select></label><div class="mf-menu-divider"></div><button type="button" class="mf-menu-item cursor-interaction" data-action="group" '+(picked().length<2?'disabled':'')+'>'+icon('group')+'선택 메모 그룹화<kbd>Ctrl G</kbd></button><button type="button" class="mf-menu-item cursor-interaction" data-action="ungroup" '+(!n.group?'disabled':'')+'>'+icon('ungroup')+'그룹 해제</button><button type="button" class="mf-menu-item cursor-interaction" data-action="duplicate">'+icon('copy')+'복제<kbd>Ctrl D</kbd></button><button type="button" class="mf-menu-item mf-danger cursor-interaction" data-action="delete">'+icon('trash-2')+'삭제<kbd>Del</kbd></button><div class="mf-menu-divider"></div><button type="button" class="mf-menu-item cursor-interaction" data-action="pages">'+icon('files')+'페이지<kbd>P</kbd></button>';
     const ownerField='<label class="mf-menu-row"><span>페이지</span><select id="mf-owner" aria-label="메모 소속 페이지">'+data.pages.map(p=>'<option value="'+p.id+'" '+(ownerOf(n.id).id===p.id?'selected':'')+'>'+esc(p.name)+'</option>').join('')+'</select></label>';
     const selectGroup='<button type="button" class="mf-menu-item cursor-interaction" data-action="select-group" '+(!n.group?'disabled':'')+'>'+icon('group')+'같은 그룹 선택</button>';
     menu.innerHTML=menu.innerHTML.replace('<div class="mf-menu-divider"></div>',ownerField+'<div class="mf-menu-divider"></div>'+selectGroup);
@@ -554,7 +559,7 @@ SOFTWARE.
     $('#mf-file-status').hidden=true;$('#mf-export-link').hidden=true;
     $('#mf-theme').value=settings.theme;$('#mf-background').value=settings.background;$('#mf-board-color').value=settings.boardColor||defaultBoardColor();$('#mf-save-status').textContent=saveStatusText();
     root.querySelector('[data-action="arrange"]').disabled=study||overview||!page().notes.length;
-    updateImageControls();pagesPanel.hidden=false;icons();
+    updateImageControls();pagesPanel.hidden=false;$('#mf-menu-toggle').setAttribute('aria-expanded','true');icons();
   }
   let exportUrl=null,importing=false;
   function fileStatus(message,isError=false){
@@ -609,6 +614,12 @@ SOFTWARE.
       });
       return {id:p.id,name:p.name.trim(),notes,view:camera(p.view)};
     });
+    const owners=new Map(loadedPages.flatMap(p=>p.notes.map(n=>[n.id,p.id]))),edgeIds=new Set(),pairs=new Set();
+    if(raw.connections!==undefined&&(!Array.isArray(raw.connections)||raw.connections.length>10000))fail('화살표 정보가 올바르지 않아요.');
+    const connections=(raw.connections||[]).map(edge=>{
+      if(!record(edge)||!id(edge.id)||edgeIds.has(edge.id)||!noteIds.has(edge.from)||!noteIds.has(edge.to)||edge.from===edge.to||owners.get(edge.from)!==owners.get(edge.to))fail('연결할 메모나 화살표 정보가 올바르지 않아요.');
+      const pair=edge.from+'>'+edge.to;if(pairs.has(pair))fail('중복된 화살표 정보가 있어요.');edgeIds.add(edge.id);pairs.add(pair);return {id:edge.id,from:edge.from,to:edge.to};
+    });
     const state=record(raw.state)?raw.state:{};
     const currentPage=pageIds.has(state.pageId)?state.pageId:loadedPages[0].id;
     const positions=[],positionIds=new Set();
@@ -623,7 +634,7 @@ SOFTWARE.
     const nextSerial=Number.isSafeInteger(state.serial)&&state.serial>0&&state.serial<10000000?state.serial:1;
     if(!Number.isSafeInteger(maxGroup)||maxGroup>10000000)fail('그룹 식별 정보가 올바르지 않아요.');
     return {
-      settings:validSettings(raw.settings),pages:loadedPages,pageId:currentPage,overview:state.overview===true,
+      settings:validSettings(raw.settings),connections,pages:loadedPages,pageId:currentPage,overview:state.overview===true,
       overviewView:state.overviewView===undefined?{x:0,y:0,z:1}:camera(state.overviewView),
       overviewPositions:positions,study:state.study===true,serial:Math.max(nextSerial,maxGroup+1),total
     };
@@ -639,9 +650,9 @@ SOFTWARE.
       const loaded=validateFile(raw);
       if(editor)finishEditing(true);
       snapshot();
-      settings=loaded.settings;data.pages=loaded.pages;pageId=loaded.pageId;overview=loaded.overview;
+      settings=loaded.settings;data.pages=loaded.pages;data.connections=loaded.connections;pageId=loaded.pageId;overview=loaded.overview;
       overviewView=loaded.overviewView;overviewPositions=new Map(loaded.overviewPositions);
-      study=loaded.study;serial=Math.max(serial,loaded.serial);selected.clear();space=false;drag=null;
+      study=loaded.study;serial=Math.max(serial,loaded.serial);selected.clear();space=false;drag=null;connectionStart=null;selectedConnection=null;
       closePanels();render();
       announce(loaded.pages.length+'개 페이지와 '+loaded.total+'개 메모를 파일에서 불러왔습니다. Ctrl Z로 불러오기 전 보드로 돌아갈 수 있습니다.');
     }catch(error){
@@ -674,12 +685,15 @@ SOFTWARE.
       if(overview){const pos=positionOf(n);overviewPositions.set(copy.id,{x:pos.x+30,y:pos.y+30,manual:true});}
       return copy;
     });
+    const mappingIds=new Map(originals.map((n,i)=>[n.id,copies[i].id]));
+    const edges=data.connections.filter(edge=>mappingIds.has(edge.from)&&mappingIds.has(edge.to));
+    if(data.connections.length+edges.length<=10000)data.connections.push(...edges.map(edge=>({id:'edge-'+Date.now()+'-'+serial++,from:mappingIds.get(edge.from),to:mappingIds.get(edge.to)})));
     selected=new Set(copies.map(n=>n.id));closePanels();render();
   }
   function undo(){
     if(!history.length)return;
     if(editor)finishEditing(false);
-    const past=JSON.parse(history.pop());settings=past.settings||settings;data.pages=past.pages;pageId=past.pageId;overview=past.overview;overviewView=past.overviewView;overviewPositions=new Map(past.overviewPositions);study=past.study;serial=Math.max(serial,past.serial);selected.clear();closePanels();render();announce('마지막 변경을 취소했습니다.');
+    const past=JSON.parse(history.pop());settings=past.settings||settings;data.pages=past.pages;data.connections=past.connections||[];connectionStart=null;selectedConnection=null;pageId=past.pageId;overview=past.overview;overviewView=past.overviewView;overviewPositions=new Map(past.overviewPositions);study=past.study;serial=Math.max(serial,past.serial);selected.clear();closePanels();render();announce('마지막 변경을 취소했습니다.');
   }
   root.addEventListener('click',e=>{
     const b=e.target.closest('button');if(!b||b.disabled)return;
@@ -701,6 +715,12 @@ SOFTWARE.
     }
     const id=menuNote||[...selected][0];
     switch(b.dataset.action){
+      case'toggle-pages':pagesPanel.hidden?showPages():closePanels();break;
+      case'toggle-bullets':toggleBullets();break;
+      case'start-connection':startConnection(id);break;
+      case'delete-connection':removeConnection();break;
+      case'reverse-connection':reverseConnection();break;
+      case'cancel-connection':cancelConnection();break;
       case'choose-background-image':$('#mf-background-file').click();break;
       case'remove-background-image':snapshot();settings.backgroundImage=null;settings.backgroundName='';render();updateImageControls();$('#mf-image-status').textContent='배경 이미지를 제거했어요. Ctrl Z로 복원할 수 있어요.';break;
       case'open-palette':openPalette();break;
@@ -730,12 +750,12 @@ SOFTWARE.
       case'import-file':$('#mf-file-input').click();break;
     }
   });
-  root.addEventListener('pointerdown',e=>{if(e.target.closest('[data-format]'))e.preventDefault();});
+  root.addEventListener('pointerdown',e=>{if(e.target.closest('[data-format],[data-action="toggle-bullets"]'))e.preventDefault();});
   root.addEventListener('input',e=>{
     if(e.target.id==='mf-image-opacity')$('#mf-image-opacity-value').textContent=e.target.value+'%';
     if(editor&&['mf-title-input','mf-body-input'].includes(e.target.id)){
       const which=e.target.id==='mf-title-input'?'title':'body';
-      editor[which+'Html']=cleanHTML(e.target.innerHTML);editor[which]=htmlText(editor[which+'Html']);scheduleSave();
+      editor[which+'Html']=cleanHTML(e.target.innerHTML);editor[which]=htmlText(editor[which+'Html']);if($('#mf-bullets'))$('#mf-bullets').setAttribute('aria-pressed',String(!!$('#mf-body-input').querySelector('ul')));scheduleSave();
     }
   });
   root.addEventListener('paste',e=>{
@@ -759,7 +779,7 @@ SOFTWARE.
     }
     if(e.target.id==='mf-owner'){
       const target=data.pages.find(p=>p.id===e.target.value),owner=ownerOf(n.id);
-      if(target&&owner!==target){snapshot();owner.notes=owner.notes.filter(item=>item.id!==n.id);target.notes.push(n);n.group=null;selected.clear();closePanels();render();announce(target.name+' 페이지로 메모를 옮겼습니다.');}
+      if(target&&owner!==target){snapshot();owner.notes=owner.notes.filter(item=>item.id!==n.id);target.notes.push(n);n.group=null;data.connections=data.connections.filter(edge=>ownerOf(edge.from)===ownerOf(edge.to));selected.clear();closePanels();render();announce(target.name+' 페이지로 메모를 옮겼습니다.');}
     }
   });
   $('#mf-page-form').addEventListener('submit',e=>{
@@ -783,6 +803,10 @@ SOFTWARE.
     if(el)startEditing(el.dataset.note);
   });
   canvas.addEventListener('pointerdown',e=>{
+    const targetNote=e.target.closest('[data-note]');
+    if(connectionStart&&e.button===0&&targetNote&&!study){e.preventDefault();connectNotes(connectionStart,targetNote.dataset.note);return;}
+    if(selectedConnection&&e.button===0){selectedConnection=null;connectionStatus();renderConnections();}
+
     const handle=e.target.closest('[data-resize]');
     if(handle&&!study&&e.button===0){
       e.preventDefault();const n=byId(handle.dataset.resize);selected=new Set([n.id]);paintSelection();snapshot();
@@ -830,7 +854,7 @@ SOFTWARE.
       const n=byId(drag.id),pos=positionOf(n),west=drag.dir.includes('w'),north=drag.dir.includes('n');
       n.w=Math.max(160,Math.min(1600,drag.w+dx/view().z*(west?-1:1)));n.h=Math.max(120,Math.min(2000,drag.h+dy/view().z*(north?-1:1)));
       pos.x=drag.x+(west?drag.w-n.w:0);pos.y=drag.y+(north?drag.h-n.h:0);if(overview)pos.manual=true;
-      const el=world.querySelector('[data-note="'+n.id+'"]');el.style.setProperty('--note-w',n.w+'px');el.style.setProperty('--note-h',n.h+'px');el.style.setProperty('--note-x',pos.x+'px');el.style.setProperty('--note-y',pos.y+'px');scheduleSave();return;
+      const el=world.querySelector('[data-note="'+n.id+'"]');el.style.setProperty('--note-w',n.w+'px');el.style.setProperty('--note-h',n.h+'px');el.style.setProperty('--note-x',pos.x+'px');el.style.setProperty('--note-y',pos.y+'px');renderConnections();scheduleSave();return;
     }
     if(drag.type==='pan'){view().x=drag.x+dx;view().y=drag.y+dy;applyView();return;}
     if(Math.abs(dx)+Math.abs(dy)<4&&!drag.moved)return;
@@ -839,6 +863,7 @@ SOFTWARE.
       const n=byId(origin.id),pos=positionOf(n);pos.x=origin.x+dx/view().z;pos.y=origin.y+dy/view().z;if(overview)pos.manual=true;
       const el=world.querySelector('[data-note="'+n.id+'"]');if(el){el.style.setProperty('--note-x',pos.x+'px');el.style.setProperty('--note-y',pos.y+'px');}
     }
+    renderConnections();
   });
   function endDrag(e){
     if(drag?.type==='selection'){if(e?.type==='pointercancel')selected=new Set(drag.previous);$('#mf-selection-box').hidden=true;paintSelection();if(drag.moved)announce(selected.size+'개 메모를 선택했습니다.');}
@@ -862,6 +887,83 @@ SOFTWARE.
   document.addEventListener('pointerdown',e=>{
     if(!root.contains(e.target)){if(editor)finishEditing(true);closePanels();}
   });
+  let connectionStart=null,selectedConnection=null;
+  const arrowLayer=$('#mf-arrows');
+  function connectionStatus(){
+    const pending=connectionStart&&byId(connectionStart);
+    $('#mf-connection-status').hidden=!pending&&!selectedConnection;
+    $('#mf-connection-message').textContent=pending?'도착 메모를 클릭하세요. Esc로 취소할 수 있어요.':'선택한 연결 화살표';
+    root.querySelectorAll('[data-action="delete-connection"],[data-action="reverse-connection"]').forEach(b=>b.hidden=!selectedConnection);
+  }
+  function cancelConnection(){connectionStart=null;selectedConnection=null;connectionStatus();renderConnections();}
+  function startConnection(id){
+    if(study||!byId(id))return;if(editor)finishEditing(true);
+    closePanels();connectionStart=id;selectedConnection=null;selected=new Set([id]);paintSelection();connectionStatus();announce('도착 메모를 클릭해 화살표를 연결하세요.');
+  }
+  function connectNotes(from,to){
+    if(from===to){announce('다른 메모를 도착점으로 선택해 주세요.');return;}
+    if(!byId(from)||!byId(to))return;
+    if(ownerOf(from)!==ownerOf(to)){announce('같은 페이지의 메모끼리 연결할 수 있어요.');return;}
+    const existing=data.connections.find(edge=>edge.from===from&&edge.to===to);
+    if(existing){connectionStart=null;selectedConnection=existing.id;selected.clear();paintSelection();connectionStatus();renderConnections();return;}
+    if(data.connections.length>=10000){announce('화살표는 10,000개까지 만들 수 있어요.');return;}
+    snapshot();const edge={id:'edge-'+Date.now()+'-'+serial++,from,to};data.connections.push(edge);connectionStart=null;selectedConnection=edge.id;selected.clear();render();announce('메모 사이에 화살표를 연결했습니다.');
+  }
+  function removeConnection(){
+    if(study||!selectedConnection)return;snapshot();data.connections=data.connections.filter(edge=>edge.id!==selectedConnection);selectedConnection=null;render();announce('선택한 화살표를 삭제했습니다.');
+  }
+  function reverseConnection(){
+    if(study)return;const edge=data.connections.find(edge=>edge.id===selectedConnection);if(!edge)return;
+    if(data.connections.some(other=>other.id!==edge.id&&other.from===edge.to&&other.to===edge.from)){announce('반대 방향 화살표가 이미 있어요.');return;}
+    snapshot();[edge.from,edge.to]=[edge.to,edge.from];render();announce('화살표 방향을 바꿨습니다.');
+  }
+  function renderConnections(){
+    if(!arrowLayer)return;
+    const visible=new Map(visibleNotes().map(n=>[n.id,n]));
+    if(connectionStart&&(!visible.has(connectionStart)||study))connectionStart=null;
+    if(selectedConnection&&(!data.connections.some(edge=>edge.id===selectedConnection&&visible.has(edge.from)&&visible.has(edge.to))||study))selectedConnection=null;
+    const v=view(),width=canvas.clientWidth,height=canvas.clientHeight;
+    arrowLayer.setAttribute('viewBox','0 0 '+width+' '+height);
+    const center=n=>{const pos=positionOf(n);return {x:pos.x*v.z+v.x+(n.w||242)*v.z/2,y:pos.y*v.z+v.y+(n.h||230)*v.z/2,w:(n.w||242)*v.z,h:(n.h||230)*v.z};};
+    const paths=data.connections.filter(edge=>visible.has(edge.from)&&visible.has(edge.to)).map(edge=>{
+      const a=center(visible.get(edge.from)),b=center(visible.get(edge.to)),dx=b.x-a.x,dy=b.y-a.y;
+      if(Math.hypot(dx,dy)<1)return '';
+      const borderA=Math.min(dx?a.w/2/Math.abs(dx):Infinity,dy?a.h/2/Math.abs(dy):Infinity),borderB=Math.min(dx?b.w/2/Math.abs(dx):Infinity,dy?b.h/2/Math.abs(dy):Infinity);
+      if(borderA+borderB>=1)return '';
+      const length=Math.hypot(dx,dy),gap=Math.min(5,length*(1-borderA-borderB)/4);
+      const x1=a.x+dx*borderA+dx/length*gap,y1=a.y+dy*borderA+dy/length*gap,x2=b.x-dx*borderB-dx/length*gap,y2=b.y-dy*borderB-dy/length*gap;
+      const d='M '+x1+' '+y1+' L '+x2+' '+y2;
+      return '<g data-connection="'+edge.id+'" class="mf-edge'+(selectedConnection===edge.id?' mf-edge-selected':'')+'" '+(!study?'role="button" tabindex="0" aria-label="연결 화살표 선택"':'aria-label="메모 연결"')+'><path class="mf-edge-line" d="'+d+'" marker-end="url(#mf-arrow-tip)"/><path class="mf-edge-hit" d="'+d+'"/></g>';
+    }).join('');
+    arrowLayer.innerHTML='<defs><marker id="mf-arrow-tip" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 1 L 8 5 L 0 9" fill="none" stroke="context-stroke" stroke-width="2"/></marker></defs>'+paths;
+    arrowLayer.classList.toggle('mf-edges-locked',study);connectionStatus();
+  }
+  function selectEdge(e){
+    if(study)return;const group=e.target.closest('[data-connection]');if(!group)return;
+    selectedConnection=group.dataset.connection;connectionStart=null;selected.clear();closePanels();paintSelection();renderConnections();
+    arrowLayer.querySelector('[data-connection="'+selectedConnection+'"]')?.focus();
+  }
+  arrowLayer.addEventListener('pointerdown',e=>{if(e.target.closest('[data-connection]')&&!study){e.preventDefault();e.stopPropagation();}});
+  arrowLayer.addEventListener('click',selectEdge);
+  arrowLayer.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();selectEdge(e);}});
+  function richLines(html){
+    const t=document.createElement('template');t.innerHTML=cleanHTML(html);const lines=[];let current='';
+    const flush=()=>{lines.push(current);current='';};
+    function walk(node,marks=[]){
+      if(node.nodeType===3){const parts=node.nodeValue.split('\n');parts.forEach((part,i)=>{if(i)flush();current+=marks.reduceRight((text,tag)=>'<'+tag+'>'+text+'</'+tag+'>',esc(part));});return;}
+      if(node.nodeType!==1)return;const tag=node.tagName.toLowerCase();if(tag==='br'){flush();return;}
+      if(tag==='li'){if(current)flush();[...node.childNodes].forEach(child=>walk(child,marks));if(current||!lines.length||node.nextElementSibling)flush();return;}
+      [...node.childNodes].forEach(child=>walk(child,['strong','u','mark'].includes(tag)?[...marks,tag]:marks));
+    }
+    [...t.content.childNodes].forEach(node=>walk(node));if(current||!lines.length)flush();return lines;
+  }
+  function toggleBullets(){
+    if(!editor||study)return;const field=$('#mf-body-input'),wasList=!!field.querySelector('ul'),lines=richLines(field.innerHTML);
+    field.innerHTML=wasList?lines.join('<br>'):'<ul>'+lines.map(line=>'<li>'+(line||'<br>')+'</li>').join('')+'</ul>';
+    field.focus();const range=document.createRange();range.selectNodeContents(field.querySelector('li:last-child')||field);range.collapse(false);const sel=getSelection();sel.removeAllRanges();sel.addRange(range);
+    field.dispatchEvent(new Event('input',{bubbles:true}));
+  }
+
   let imageLoading=false;
   function updateImageControls(){
     const has=!!settings.backgroundImage;
@@ -912,7 +1014,7 @@ SOFTWARE.
   document.addEventListener('copy',e=>{
     if(!boardClipboardContext(e)||!picked().length||!e.clipboardData)return;
     const originals=picked(),left=Math.min(...originals.map(n=>positionOf(n).x)),top=Math.min(...originals.map(n=>positionOf(n).y));
-    const value={format:'moa-note-clipboard',version:1,notes:originals.map(n=>({...clone(n),x:positionOf(n).x-left,y:positionOf(n).y-top,groupKey:n.group?ownerOf(n.id).id+':'+n.group:null}))};
+    const value={format:'moa-note-clipboard',version:1,notes:originals.map(n=>({...clone(n),x:positionOf(n).x-left,y:positionOf(n).y-top,groupKey:n.group?ownerOf(n.id).id+':'+n.group:null})),connections:data.connections.filter(edge=>selected.has(edge.from)&&selected.has(edge.to))};
     const json=JSON.stringify(value),plain=originals.map(n=>[n.title,n.body].filter(Boolean).join('\n')).join('\n\n');
     e.clipboardData.setData(clipboardType,json);
     e.clipboardData.setData('text/plain',plain);
@@ -933,7 +1035,8 @@ SOFTWARE.
       const raw=JSON.parse(json);
       if(raw?.format!=='moa-note-clipboard'||raw.version!==1||!Array.isArray(raw.notes)||!raw.notes.length)throw Error('복사한 메모 형식이 올바르지 않아요.');
       if(allNotes().length+raw.notes.length>5000)throw Error('한 보드에서는 메모를 5,000개까지 사용할 수 있어요.');
-      const loaded=validateFile({format:'moa-study-board',version:2,pages:[{id:'clipboard',name:'복사한 메모',notes:raw.notes,view:{x:0,y:0,z:1}}]});
+      const loaded=validateFile({format:'moa-study-board',version:2,connections:raw.connections||[],pages:[{id:'clipboard',name:'복사한 메모',notes:raw.notes,view:{x:0,y:0,z:1}}]});
+      if(data.connections.length+loaded.connections.length>10000)throw Error('화살표는 10,000개까지 사용할 수 있어요.');
       if(editor)finishEditing(true);
       const r=canvas.getBoundingClientRect(),v=view(),pointer=boardPointer||{x:r.left+canvas.clientWidth/2,y:r.top+canvas.clientHeight/2};
       const anchor={x:(pointer.x-r.left-v.x)/v.z,y:(pointer.y-r.top-v.y)/v.z};
@@ -947,7 +1050,9 @@ SOFTWARE.
         if(overview)overviewPositions.set(n.id,{x:n.x,y:n.y,manual:true});
         return n;
       });
-      page().notes.push(...copies);selected=new Set(copies.map(n=>n.id));closePanels();render();
+      const copyIds=new Map(raw.notes.map((n,i)=>[n.id,copies[i].id]));
+      data.connections.push(...loaded.connections.map(edge=>({id:'edge-'+Date.now()+'-'+serial++,from:copyIds.get(edge.from),to:copyIds.get(edge.to)})));
+      page().notes.push(...copies);selectedConnection=null;connectionStart=null;selected=new Set(copies.map(n=>n.id));closePanels();render();
       announce(copies.length+'개 메모를 '+page().name+' 페이지에 붙여넣었습니다. Ctrl Z로 취소할 수 있어요.');
     }catch(error){announce(error.message||'메모를 붙여넣지 못했어요.');}
   });
@@ -1064,16 +1169,16 @@ SOFTWARE.
     if(key==='f'){e.preventDefault();fit();}
     if(key==='n'&&!study){e.preventDefault();const r=canvas.getBoundingClientRect();addAt(r.left+canvas.clientWidth/2,r.top+canvas.clientHeight/2);}
     if(key==='enter'&&!study&&selected.size===1){e.preventDefault();startEditing([...selected][0]);}
-    if((key==='delete'||key==='backspace')&&!study&&menu.hidden&&pagesPanel.hidden){e.preventDefault();remove();}
-    if(key==='escape'){if(drag){if(drag.type==='selection')selected=new Set(drag.previous);endDrag();}closePanels();selected.clear();paintSelection();}
+    if((key==='delete'||key==='backspace')&&!study&&menu.hidden&&pagesPanel.hidden){e.preventDefault();selectedConnection?removeConnection():remove();}
+    if(key==='escape'){cancelConnection();if(drag){if(drag.type==='selection')selected=new Set(drag.previous);endDrag();}closePanels();selected.clear();paintSelection();}
     if(e.code==='Space'&&desktop()){e.preventDefault();space=true;updateMode();}
   });
   document.addEventListener('keyup',e=>{if(e.code==='Space'){space=false;updateMode();}});
   window.addEventListener('blur',()=>{space=false;endDrag();updateMode();});
-  restoreLocal();render();requestAnimationFrame(()=>{showWelcome();});
-  let width=canvas.clientWidth,timer;
+  restoreLocal();render();requestAnimationFrame(()=>{applyView();showWelcome();});
+  let width=canvas.clientWidth,height=canvas.clientHeight,timer;
   if(window.ResizeObserver)new ResizeObserver(()=>{
-    if(width===canvas.clientWidth)return;width=canvas.clientWidth;
+    if(width===canvas.clientWidth&&height===canvas.clientHeight)return;width=canvas.clientWidth;height=canvas.clientHeight;
     clearTimeout(timer);timer=setTimeout(()=>{if(overview)render();applyView();if(!menu.hidden&&menuPoint)positionMenu(menuPoint.x,menuPoint.y);},100);
   }).observe(canvas);
 })();
@@ -1182,6 +1287,25 @@ html,body {height:100%;overflow:hidden;overscroll-behavior:none}
 #moa-board #mf-default-palette{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}
 #moa-board .mf-default-swatch{height:26px;min-width:0;border:1px solid var(--mf-line);border-radius:4px}
 #moa-board [data-palette-color][aria-pressed=true]{outline:2px solid var(--mf-accent);outline-offset:2px}
+</style>
+<style>
+#moa-board #mf-menu-toggle{border-left:1px solid var(--mf-line);border-radius:0 6px 6px 0}
+#moa-board .mf-menu button.mf-palette-launch{border:1px solid var(--mf-accent);border-radius:7px;background:var(--mf-accent-soft);color:var(--mf-accent);margin:5px 0 7px;font-weight:500;justify-content:space-between;min-height:40px}
+#moa-board .mf-palette-symbol{display:inline-block;width:16px;height:16px;border-radius:50%;background:conic-gradient(#f69ca7,#ffb36b,#ffd95a,#a8d5ba,#87baf5,#c3b1e1,#f69ca7);flex-shrink:0}
+#moa-board .mf-note ul{margin:0;padding-left:1.35em;list-style-type:disc;white-space:normal}
+#moa-board .mf-note li{white-space:pre-wrap;margin:2px 0}
+#moa-board .mf-rich-toolbar{flex-wrap:wrap}
+#moa-board #mf-bullets[aria-pressed=true]{background:var(--mf-accent);color:var(--mf-on-accent)}
+#moa-board #mf-arrows{position:absolute;inset:0;width:100%;height:100%;z-index:1;pointer-events:none;overflow:hidden}
+#moa-board .mf-world{z-index:2}
+#moa-board .mf-edge-line{stroke:var(--mf-accent);stroke-width:2;fill:none;pointer-events:none;stroke-linecap:round}
+#moa-board .mf-edge-hit{stroke:transparent;stroke-width:16;fill:none;pointer-events:stroke;cursor:pointer}
+#moa-board .mf-edge-selected .mf-edge-line{stroke-width:3.5;stroke:var(--mf-accent)}
+#moa-board .mf-edge:focus-visible .mf-edge-line{stroke-dasharray:6 3}
+#moa-board .mf-edges-locked .mf-edge-hit{pointer-events:none}
+#moa-board #mf-connection-status{position:absolute;z-index:25;bottom:18px;left:50%;transform:translateX(-50%);max-width:calc(100% - 24px);background:var(--mf-panel);border:1px solid var(--mf-line);border-radius:9px;box-shadow:0 4px 18px var(--mf-shadow);padding:9px 12px;display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;font-size:12px}
+#moa-board #mf-connection-status button{border:1px solid var(--mf-line);border-radius:5px;padding:5px 7px;white-space:nowrap}
+@media(max-width:600px){#moa-board .mf-modes{left:12px;right:12px;justify-content:flex-end}#moa-board .mf-modes button{padding:8px;gap:4px}#moa-board #mf-connection-status{min-width:280px}}
 </style>
 <noscript>모아보드를 사용하려면 브라우저에서 JavaScript를 활성화해 주세요.</noscript>
 </body>
