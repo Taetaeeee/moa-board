@@ -90,11 +90,30 @@ SOFTWARE.
     <div class="mf-file-actions">
       <button type="button" data-action="export-file" class="cursor-interaction"><i data-lucide="download" aria-hidden="true"></i>파일로 저장 <kbd>Ctrl S</kbd></button>
       <button type="button" data-action="import-file" class="cursor-interaction"><i data-lucide="folder-open" aria-hidden="true"></i>파일 불러오기 <kbd>Ctrl O</kbd></button>
+      <button type="button" data-action="help" class="cursor-interaction"><i data-lucide="files" aria-hidden="true"></i>사용법 다시 보기 <kbd>?</kbd></button>
     </div>
     <a id="mf-export-link" class="mf-download-link cursor-interaction" hidden>저장 파일 다운로드</a>
     <div id="mf-file-status" class="mf-file-status" role="status" aria-live="polite" hidden></div>
   </section>
   <input id="mf-file-input" type="file" accept=".json,application/json" aria-label="모아보드 저장 파일 선택" hidden>
+  <dialog id="mf-welcome" aria-labelledby="mf-welcome-title" aria-describedby="mf-welcome-intro">
+    <div class="mf-welcome-heading">
+      <div><span class="mf-welcome-kicker">모아보드</span><h1 id="mf-welcome-title">이렇게 사용해요</h1></div>
+      <button type="button" data-action="close-help" class="mf-welcome-close cursor-interaction" aria-label="사용법 닫기"><i data-lucide="x" aria-hidden="true"></i></button>
+    </div>
+    <p id="mf-welcome-intro">빈 보드에 메모를 붙이고, 가리면서 외워보세요.</p>
+    <ul class="mf-welcome-guide">
+      <li><span class="mf-guide-icon"><i data-lucide="mouse-pointer-2" aria-hidden="true"></i></span><div><strong>메모 만들고 옮기기</strong><span>편집 모드에서 빈 곳 <b>우클릭</b>으로 추가.<br>메모를 <b>더블클릭</b>해 수정하고, 드래그해 이동.</span></div></li>
+      <li><span class="mf-guide-icon"><i data-lucide="brain" aria-hidden="true"></i></span><div><strong>가리고, 떠올리고, 확인하기</strong><span>암기 모드에서 메모를 <b>우클릭</b>하면<br>블러가 켜지고, 다시 누르면 내용이 보여요.</span></div></li>
+      <li><span class="mf-guide-icon"><i data-lucide="files" aria-hidden="true"></i></span><div><strong>페이지와 전체 보기</strong><span><kbd>P</kbd> 키로 페이지 메뉴를 열어<br>페이지별 보기와 전체 모아보기를 선택해요.</span></div></li>
+      <li><span class="mf-guide-icon"><i data-lucide="download" aria-hidden="true"></i></span><div><strong>파일로 저장하고 이어서 공부하기</strong><span><kbd>Ctrl S</kbd> 저장 · <kbd>Ctrl O</kbd> 불러오기<br>창을 닫기 전에 파일로 저장해 주세요.</span></div></li>
+    </ul>
+    <label class="mf-welcome-preference"><input id="mf-welcome-hide" type="checkbox">다음부터 보지 않기</label>
+    <div class="mf-welcome-actions">
+      <button type="button" data-action="welcome-import" class="cursor-interaction">기존 파일 열기</button>
+      <button type="button" data-action="close-help" class="mf-welcome-start cursor-interaction" autofocus>시작하기</button>
+    </div>
+  </dialog>
   <div id="mf-live" class="mf-live" aria-live="polite"></div>
 </div>
 <style>
@@ -167,6 +186,27 @@ SOFTWARE.
   #moa-board .mf-file-status {font-size:11px;line-height:1.7;overflow-wrap:anywhere;margin:9px 4px 2px;color:var(--mf-sub)}
   #moa-board .mf-file-status[data-error=true] {color:var(--mf-danger)}
   #moa-board .mf-live {position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+  #moa-board #mf-welcome {width:440px;max-width:calc(100% - 32px);max-height:calc(100svh - 32px);padding:26px;background:var(--mf-panel);color:var(--mf-ink);border:1px solid var(--mf-line);border-radius:17px;box-shadow:0 20px 80px var(--mf-shadow);overflow-y:auto}
+  #moa-board #mf-welcome::backdrop {background:light-dark(#24202f45,#00000080);backdrop-filter:blur(2px)}
+  #moa-board .mf-welcome-heading {display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+  #moa-board .mf-welcome-kicker {font-size:11px;color:var(--mf-accent);font-weight:500}
+  #moa-board #mf-welcome-title {font-size:21px;font-weight:500;line-height:1.4;margin:5px 0 0}
+  #moa-board .mf-welcome-close {min-width:30px;min-height:30px;border-radius:6px;color:var(--mf-sub)}
+  #moa-board #mf-welcome-intro {font-size:12px;color:var(--mf-sub);line-height:1.8;margin:11px 0 23px}
+  #moa-board .mf-welcome-guide {list-style:none;padding:0;margin:0;display:grid;gap:20px}
+  #moa-board .mf-welcome-guide li {display:flex;align-items:flex-start;gap:13px;min-width:0}
+  #moa-board .mf-guide-icon {display:grid;place-items:center;flex-shrink:0;width:33px;height:33px;background:var(--mf-accent-soft);color:var(--mf-accent);border-radius:9px}
+  #moa-board .mf-guide-icon svg {width:17px;height:17px}
+  #moa-board .mf-welcome-guide strong {display:block;font-size:13px;font-weight:500;margin-bottom:4px}
+  #moa-board .mf-welcome-guide li div>span {font-size:12px;line-height:1.85;color:var(--mf-sub)}
+  #moa-board .mf-welcome-guide b {color:var(--mf-ink);font-weight:500}
+  #moa-board .mf-welcome-guide kbd {color:var(--mf-ink);border-color:var(--mf-line);opacity:1;font-size:11px;padding:1px 4px}
+  #moa-board .mf-welcome-preference {display:flex;gap:8px;align-items:center;color:var(--mf-sub);font-size:12px;margin-top:26px}
+  #moa-board .mf-welcome-preference input {width:15px;height:15px;accent-color:var(--mf-accent)}
+  #moa-board .mf-welcome-actions {display:flex;gap:9px;margin-top:15px}
+  #moa-board .mf-welcome-actions button {flex:1;padding:10px 7px;border:1px solid var(--mf-line);border-radius:7px;font-size:12px;min-height:40px}
+  #moa-board .mf-welcome-actions .mf-welcome-start {background:var(--mf-accent);color:var(--mf-on-accent);border-color:var(--mf-accent)}
+  #moa-board .mf-welcome-actions .mf-welcome-start:hover {filter:brightness(.97);background:var(--mf-accent)}
   #moa-board .mf-panning {cursor:grab}
   @media(max-width:600px) {
     #moa-board .mf-modes {top:12px;right:12px}
@@ -191,22 +231,21 @@ SOFTWARE.
   const icon=name=>'<i data-lucide="'+name+'" aria-hidden="true"></i>';
   const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const topics={network:'네트워크',database:'데이터베이스',security:'정보보안',general:'미분류'};
-  const data={pages:[
-    {id:'exam',name:'정보처리기사',view:{x:0,y:0,z:1},notes:[
-      {id:'arp',title:'IP → MAC 주소를 찾는\n프로토콜은?',body:'ARP\n같은 네트워크에서 IP 주소에\n대응하는 MAC 주소를 알아낸다.',x:140,y:119,color:'yellow',topic:'network',group:'network',hidden:true,mask:'body'},
-      {id:'dns',title:'DNS는 무엇을\n변환해 줄까?',body:'도메인 이름 → IP 주소\n예: example.com → 서버 IP',x:459,y:95,color:'yellow',topic:'network',group:'network',hidden:false,mask:'body'},
-      {id:'sql',title:'WHERE와 HAVING의\n차이점은?',body:'WHERE : 그룹화 전, 행 필터\nHAVING : 그룹화 후, 그룹 필터',x:214,y:383,color:'mint',topic:'database',group:'sql',hidden:true,mask:'body'},
-      {id:'join',title:'INNER JOIN과\nLEFT JOIN 비교',body:'INNER : 양쪽에 일치하는 행만\nLEFT : 왼쪽의 모든 행 유지\n오른쪽에 일치 값이 없으면 NULL',x:546,y:369,color:'mint',topic:'database',group:'sql',hidden:false,mask:'body'}
-    ]},
-    {id:'lab',name:'네트워크 실습',view:{x:0,y:0,z:1},notes:[
-      {id:'lab1',title:'연결이 끊겼다면\n무엇부터 확인할까?',body:'물리 연결과 링크 상태\n→ IP · 게이트웨이 · DNS\n→ 구간별 연결 테스트',x:140,y:119,color:'yellow',topic:'network',group:null,hidden:true,mask:'body'},
-      {id:'lab2',title:'IP로는 접속되는데\n도메인으로는 안 된다면?',body:'DNS 문제를 우선 의심\nnslookup 또는 dig로 조회\nDNS 서버까지의 연결 확인',x:459,y:95,color:'lilac',topic:'network',group:null,hidden:false,mask:'body'}
-    ]},
-    {id:'interview',name:'면접 준비',view:{x:0,y:0,z:1},notes:[
-      {id:'int1',title:'문제 해결 경험을\n설명하는 순서',body:'상황 → 증상 → 확인한 근거\n→ 원인 → 조치 → 결과\n재발 방지 방법까지.',x:140,y:119,color:'lilac',topic:'general',group:null,hidden:true,mask:'body'}
-    ]}
-  ]};
-  let pageId='exam',overview=false,overviewView={x:0,y:0,z:1},overviewPositions=new Map(),study=false,selected=new Set(),editor=null,drag=null,space=false,serial=1,history=[],menuNote=null,menuPoint=null;
+  const data={pages:[{id:'page-1',name:'새 페이지',view:{x:0,y:0,z:1},notes:[]}]};
+  let pageId='page-1',overview=false,overviewView={x:0,y:0,z:1},overviewPositions=new Map(),study=false,selected=new Set(),editor=null,drag=null,space=false,serial=1,history=[],menuNote=null,menuPoint=null;
+  const welcome=$('#mf-welcome'),welcomePreference=$('#mf-welcome-hide'),welcomeKey='moa-board.hide-welcome.v1';
+  function hideWelcomePreference(){try{return localStorage.getItem(welcomeKey)==='1';}catch{return false;}}
+  function showWelcome(force=false){
+    if(!force&&hideWelcomePreference())return;
+    if(editor)finishEditing(true);
+    closePanels();welcomePreference.checked=hideWelcomePreference();
+    if(!welcome.open)welcome.showModal();
+  }
+  function closeWelcome(){
+    try{if(welcomePreference.checked)localStorage.setItem(welcomeKey,'1');else localStorage.removeItem(welcomeKey);}catch{}
+    welcome.close();
+  }
+  welcome.addEventListener('cancel',e=>{e.preventDefault();closeWelcome();});
   const page=()=>data.pages.find(p=>p.id===pageId);
   const allNotes=()=>data.pages.flatMap(p=>p.notes);
   const visibleNotes=()=>overview?allNotes():page().notes;
@@ -499,6 +538,9 @@ SOFTWARE.
       case'duplicate':duplicate();break;
       case'pages':showPages();break;
       case'close-pages':closePanels();break;
+      case'help':showWelcome(true);break;
+      case'close-help':closeWelcome();break;
+      case'welcome-import':closeWelcome();$('#mf-file-input').click();break;
       case'export-file':exportFile();break;
       case'import-file':$('#mf-file-input').click();break;
     }
@@ -594,6 +636,7 @@ SOFTWARE.
   });
   document.addEventListener('keydown',e=>{
     if(!root.isConnected||e.isComposing)return;
+    if(welcome.open){if(e.key==='Escape'){e.preventDefault();closeWelcome();}return;}
     const active=document.activeElement;
     const physicalKey=/^Key[A-Z]$/.test(e.code)?e.code.slice(3).toLowerCase():e.key.toLowerCase();
     if(!root.contains(active)&&active!==document.body)return;
@@ -603,6 +646,7 @@ SOFTWARE.
     if((e.ctrlKey||e.metaKey)&&physicalKey==='s'){e.preventDefault();exportFile();return;}
     if((e.ctrlKey||e.metaKey)&&physicalKey==='o'){e.preventDefault();$('#mf-file-input').click();return;}
     if(textInput)return;
+    if(e.key==='?'||(e.code==='Slash'&&e.shiftKey)){e.preventDefault();showWelcome(true);return;}
     const key=physicalKey,command=e.ctrlKey||e.metaKey;
     if(command){
       if(key==='z'){e.preventDefault();undo();}
@@ -624,7 +668,7 @@ SOFTWARE.
   });
   document.addEventListener('keyup',e=>{if(e.code==='Space'){space=false;updateMode();}});
   window.addEventListener('blur',()=>{space=false;endDrag();updateMode();});
-  render();requestAnimationFrame(fit);
+  render();requestAnimationFrame(()=>{fit();showWelcome();});
   let width=canvas.clientWidth,timer;
   if(window.ResizeObserver)new ResizeObserver(()=>{
     if(width===canvas.clientWidth)return;width=canvas.clientWidth;
