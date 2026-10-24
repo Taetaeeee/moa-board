@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="자유롭게 메모를 배치하고, 가리고, 확인하며 공부하는 로그인 없는 암기 화이트보드.">
   <meta name="color-scheme" content="light dark">
-  <meta name="moa-build" content="2026-10-24-material-batch-tags-v7">
+  <meta name="moa-build" content="2026-10-24-quick-start-help-v7-1">
   <title>모아보드 · 암기 화이트보드</title>
   <!-- Bundled Lucide icons. The complete ISC license is included below. -->
   <!-- ISC License
@@ -112,7 +112,7 @@ SOFTWARE.
     <div class="mf-file-actions">
       <button type="button" data-action="export-file" class="cursor-interaction"><i data-lucide="download" aria-hidden="true"></i>파일로 저장 <kbd>Ctrl S</kbd></button>
       <button type="button" data-action="import-file" class="cursor-interaction"><i data-lucide="folder-open" aria-hidden="true"></i>파일 불러오기 <kbd>Ctrl O</kbd></button>
-      <button type="button" data-action="help" class="cursor-interaction"><i data-lucide="files" aria-hidden="true"></i>사용법 다시 보기 <kbd>?</kbd></button>
+      <button type="button" data-action="help" class="cursor-interaction"><i data-lucide="files" aria-hidden="true"></i>사용법 · 단축키 <kbd>?</kbd></button>
     </div>
     <a id="mf-export-link" class="mf-download-link cursor-interaction" hidden>저장 파일 다운로드</a>
     <div id="mf-file-status" class="mf-file-status" role="status" aria-live="polite" hidden></div>
@@ -120,23 +120,33 @@ SOFTWARE.
   <input id="mf-background-file" type="file" accept="image/png,image/jpeg,image/webp" aria-label="배경 이미지 선택" hidden>
   <input id="mf-file-input" type="file" accept=".json,application/json" aria-label="모아보드 저장 파일 선택" hidden>
   <dialog id="mf-welcome" aria-labelledby="mf-welcome-title" aria-describedby="mf-welcome-intro">
-    <div class="mf-welcome-heading">
-      <div><span class="mf-welcome-kicker">모아보드 · 시작 안내</span><h1 id="mf-welcome-title">이렇게 사용해요</h1></div>
-      <button type="button" data-action="close-help" class="mf-welcome-close cursor-interaction" aria-label="사용법 닫기"><i data-lucide="x" aria-hidden="true"></i></button>
-    </div>
-    <p id="mf-welcome-intro">빈 보드에 메모를 붙이고, 가리면서 외워보세요.</p>
-    <ul class="mf-welcome-guide">
-      <li><span class="mf-guide-icon"><i data-lucide="mouse-pointer-2" aria-hidden="true"></i></span><div><strong>메모 만들고 꾸미기</strong><span>빈 곳 <b>우클릭</b>으로 추가, 더블클릭해 편집.<br>글자 크기·강조·<b>• 목록</b>, <kbd>Tab</kbd> 들여쓰기.<br>테두리 더블클릭으로 내용에 맞게 크기를 조절해요.<br>메모 우클릭 → <b>화살표 연결</b> → 도착 메모 클릭.<br>메모를 드래그해 이동하고 모서리로 크기를 바꿔요.<br>여러 메모 선택 → 우클릭 → <b>선택 메모 태그 편집</b>.<br><kbd>Ctrl C</kbd> 복사 · <kbd>Ctrl V</kbd> 붙여넣기.<br><kbd>Ctrl</kbd> + 휠로 확대·축소, 빈 곳 드래그로 여러 메모 선택.<br><kbd>Space</kbd> + 드래그 / 가운데 버튼으로 보드 이동.</span></div></li>
-      <li><span class="mf-guide-icon"><i data-lucide="brain" aria-hidden="true"></i></span><div><strong>가리고, 떠올리고, 확인하기</strong><span>암기 모드에서 메모를 <b>우클릭</b>하면<br>블러가 켜지고, 다시 누르면 내용이 보여요.</span></div></li>
-      <li><span class="mf-guide-icon"><i data-lucide="files" aria-hidden="true"></i></span><div><strong>상단 메뉴 P 버튼을 눌러보세요</strong><span>상단 <b>메뉴 P</b> 또는 <kbd>P</kbd> → 페이지 추가·이동 / 전체 모아보기<br>자료로 메모 만들기 / 태그로 보기 / 현재 페이지 정렬 / 파일 백업·불러오기 / 테마·배경 설정.<br><kbd>F</kbd>는 멀리 흩어진 메모까지 화면에 맞춰요.</span></div></li>
-      <li><span class="mf-guide-icon"><i data-lucide="download" aria-hidden="true"></i></span><div><strong>자동 저장하고, 파일로도 백업해요</strong><span>같은 브라우저에서는 새로고침해도 자동 복원돼요.<br>다른 PC로 옮길 때는 <kbd>Ctrl S</kbd>로 JSON 백업,<br><kbd>Ctrl O</kbd>로 불러오기. 브라우저 데이터 삭제에 대비해 파일도 보관해 주세요.</span></div></li>
-    </ul>
+    <div class="mf-welcome-heading"><div><span class="mf-welcome-kicker">모아보드 · 시작 안내</span><h1 id="mf-welcome-title">자료를 메모로, <span class="mf-welcome-tagline">메모를 암기로</span></h1></div><button type="button" data-action="close-help" class="mf-welcome-close cursor-interaction" aria-label="시작 안내 닫기"><i data-lucide="x" aria-hidden="true"></i></button></div>
+    <p id="mf-welcome-intro">아래 3단계로 시작해 보세요.</p>
+    <ol class="mf-welcome-guide">
+      <li><span class="mf-guide-icon" aria-hidden="true">1</span><div><strong>메모 만들기</strong><span>자료를 붙여넣어 여러 메모로 나누거나,<br> 빈 곳을 우클릭해 직접 만들어요.</span></div></li>
+      <li><span class="mf-guide-icon" aria-hidden="true">2</span><div><strong>보기 좋게 정리하기</strong><span>메모를 드래그해 배치하고, 여러 개를<br> 선택해 태그를 한꺼번에 붙여요.</span></div></li>
+      <li><span class="mf-guide-icon" aria-hidden="true">3</span><div><strong>가리고 외우기</strong><span>암기 모드에서 메모를 우클릭하면<br> 내용을 가리거나 확인할 수 있어요.</span></div></li>
+    </ol>
+    <div class="mf-welcome-save"><strong>같은 브라우저에 자동 저장돼요.</strong><span>다른 PC로 옮기거나 백업하려면<br> <b>메뉴 P → 파일로 저장</b>을 이용하세요.</span></div>
     <label class="mf-welcome-preference"><input id="mf-welcome-hide" type="checkbox">다음부터 보지 않기</label>
-    <div class="mf-welcome-actions">
-      <button type="button" data-action="welcome-import" class="cursor-interaction">기존 파일 열기</button>
-      <button type="button" data-action="close-help" class="mf-welcome-start cursor-interaction" autofocus>시작하기</button>
-    </div>
+    <div class="mf-welcome-actions"><button type="button" data-action="welcome-material" class="mf-welcome-start cursor-interaction" autofocus>자료로 시작하기</button><button type="button" data-action="close-help" class="mf-welcome-blank cursor-interaction">빈 보드로 시작하기</button></div>
+    <div class="mf-welcome-links"><button type="button" data-action="welcome-details">자세한 사용법</button><span aria-hidden="true">·</span><button type="button" data-action="welcome-import">기존 파일 열기</button></div>
+    <p class="mf-welcome-return">사용법은 메뉴 P에서 다시 볼 수 있어요.</p>
   </dialog>
+  <dialog id="mf-help-dialog" aria-labelledby="mf-help-title">
+    <div class="mf-welcome-heading"><div><span class="mf-welcome-kicker">모아보드 · 사용 가이드</span><h2 id="mf-help-title">사용법과 단축키</h2></div><button type="button" data-action="close-details" class="mf-welcome-close" aria-label="자세한 사용법 닫기"><i data-lucide="x" aria-hidden="true"></i></button></div>
+    <p class="mf-help-intro">필요한 항목을 펼쳐서 확인하세요.</p>
+    <details open><summary>메모 만들기 · 자료 넣기</summary><div><p><b>메뉴 P → 자료로 메모 만들기</b>에서 자료를 붙여넣고 미리보기를 만듭니다. 제목·본문을 수정하거나 제외·나누기·합치기를 한 뒤 추가하세요.</p><p>한 번에 <b>10,000자 · 메모 50개</b>까지 만들 수 있어요. 8,000자부터 안내하며, 한도를 넘으면 입력은 유지하고 생성을 막습니다. 원문을 문단·항목별로 나누고, 용어·소제목을 질문형으로 바꿀 수 있어요.</p><p>공통 태그를 고르거나 태그 없이 만들 수 있어요. 기존 메모를 선택하고 우클릭 → <b>내용으로 메모 나누기</b>도 가능합니다.</p><p>직접 만들려면 빈 곳을 <b>우클릭</b>하세요. 메모를 더블클릭해 편집하고 <kbd>Ctrl Enter</kbd> 또는 완료로 마칩니다.</p><button type="button" data-action="help-material" class="mf-help-action">자료로 메모 만들기 열기</button></div></details>
+    <details><summary>이동 · 여러 메모 선택 · 태그</summary><div><p>메모를 드래그해 옮깁니다. 편집 모드에서 빈 곳을 드래그하면 여러 메모가 선택되고, <kbd>Shift</kbd> + 클릭·드래그로 선택을 추가할 수 있어요.</p><p>여러 메모 선택 → 우클릭 → <b>선택 메모 태그 편집</b>에서 태그를 추가·제거·비울 수 있어요. 하나의 메모는 우클릭 메뉴에서 태그를 입력하거나 이미 사용한 태그를 선택합니다.</p><p>메모에 마우스를 올리거나 # 버튼을 누르면 태그가 보여요. <b>메뉴 P → 태그로 보기</b>에서 분류별로 확인합니다. 여러 태그를 고르면 그중 하나라도 있는 메모를 표시해요.</p></div></details>
+    <details><summary>글자 꾸미기 · 들여쓰기 · 메모 크기</summary><div><p>글자를 선택한 뒤 <b>B / U / 형광펜</b>을 누르세요. 글자 크기는 <b>10~72px</b>로 조절하며, 커서만 두면 이후 입력하는 글자에 적용해요.</p><p><b>• 목록</b> 버튼은 본문을 글머리 기호 목록으로 바꿉니다. <kbd>Tab</kbd>은 들여쓰기, <kbd>Shift Tab</kbd>은 내어쓰기이며 목록에서는 하위·상위 항목으로 바꿔요.</p><p>메모의 테두리·모서리를 드래그해 크기를 바꿉니다. <b>가로 테두리 더블클릭</b>은 높이, <b>세로 테두리</b>는 너비, <b>모서리</b>는 둘 다 내용에 맞춰요.</p><p>메모 색상은 우클릭 → <b>색상 팔레트 열기</b>에서 선택합니다. 여러 메모에도 함께 적용할 수 있어요.</p></div></details>
+    <details><summary>화살표 · 그룹 · 복사</summary><div><p>출발 메모 우클릭 → <b>이 메모에서 화살표 연결</b> → 같은 페이지의 도착 메모를 클릭하세요. 선을 선택하면 방향을 반전하거나 삭제할 수 있어요.</p><p>메모 선택 후 <kbd>Ctrl C</kbd> / <kbd>Ctrl V</kbd>로 복사·붙여넣기합니다. 여러 메모를 함께 복사하면 상대적인 배치와 내부 화살표도 유지해요.</p><p><kbd>Ctrl G</kbd>로 같은 페이지의 선택 메모를 그룹화합니다. 그룹 전체를 옮기려면 우클릭 → <b>같은 그룹 선택</b> 후 드래그하세요.</p></div></details>
+    <details><summary>암기 모드</summary><div><p>상단 <b>암기 모드</b> 또는 <kbd>M</kbd>으로 전환합니다. 메모를 우클릭해 가리고, 다시 우클릭해 확인하세요. 가릴 범위는 편집 모드의 메모 우클릭 메뉴에서 정합니다.</p><p>암기 모드에서는 메모 이동·크기 변경과 화살표 편집이 잠깁니다. 가림 효과는 학습용이며 암호화는 아닙니다.</p></div></details>
+    <details><summary>페이지 · 화면 이동 · 꾸미기</summary><div><p><b>메뉴 P</b>에서 페이지를 추가·이동하고 전체 모아보기를 엽니다. <b>현재 페이지 정렬</b>은 메모 위치를 실제로 바꾸고, <b>전체 맞춤 F</b>는 화면 위치와 배율만 바꿔요.</p><p><kbd>Ctrl</kbd> + 휠로 확대·축소합니다. 휠, 가운데 버튼 또는 <kbd>Space</kbd> + 드래그로 보드를 이동합니다. 암기 모드와 터치에서는 빈 곳을 드래그해 이동할 수 있어요.</p><p><b>메뉴 P → 화면 꾸미기</b>에서 테마·배경지·배경색·이미지를 선택할 수 있어요.</p></div></details>
+    <details><summary>자동 저장 · 파일 백업 · 다른 PC</summary><div><p>같은 사이트와 브라우저 프로필에서는 새로고침·재접속 시 자동 저장본을 복원합니다. 저장 실패 시 보드 아래에 백업 안내가 나타나요.</p><p>다른 PC로 옮기거나 백업하려면 <b>메뉴 P → 파일로 저장</b> 또는 <kbd>Ctrl S</kbd>로 JSON을 저장하세요. 옮긴 PC에서 <b>파일 불러오기</b> 또는 <kbd>Ctrl O</kbd>로 엽니다.</p><p>생성 전 입력 자료와 미리보기는 현재 탭에 임시 보관됩니다. 브라우저 데이터 삭제·비공개 모드 종료 등에 대비해 중요한 원문과 JSON 파일을 별도로 보관하세요.</p><p>메모는 서버로 동기화되지 않습니다. 브라우저·프로필·기기가 다르면 별도의 보드를 사용해요.</p></div></details>
+    <details><summary>단축키 모아보기</summary><div><table><thead><tr><th>키</th><th>동작</th></tr></thead><tbody><tr><td>M / P / ?</td><td>모드 전환 / 메뉴 / 사용법</td></tr><tr><td>B</td><td>암기 모드에서 선택 메모 가림 전환</td></tr><tr><td>N / F</td><td>새 메모 / 현재 보기 전체 맞춤</td></tr><tr><td>Ctrl Enter / Esc</td><td>편집 완료 / 편집 취소·닫기</td></tr><tr><td>Ctrl C / V / D</td><td>메모 복사 / 붙여넣기 / 복제</td></tr><tr><td>Ctrl A / Delete</td><td>현재 보기 전체 선택 / 선택 메모·화살표 삭제</td></tr><tr><td>Ctrl Z</td><td>직전 변경 취소</td></tr><tr><td>Ctrl G / Ctrl Shift G</td><td>그룹화 / 그룹 해제</td></tr><tr><td>Ctrl B / Ctrl U</td><td>굵게 / 밑줄</td></tr><tr><td>Tab / Shift Tab</td><td>편집 중 들여쓰기 / 내어쓰기</td></tr><tr><td>Ctrl S / Ctrl O</td><td>파일 백업 / 불러오기</td></tr></tbody></table><p>macOS에서는 Ctrl 대신 Command를 사용합니다. 텍스트 입력 중에는 일반 문자 단축키가 실행되지 않아요.</p></div></details>
+    <div class="mf-help-footer"><button type="button" data-action="help-start">시작 안내 다시 보기</button><button type="button" data-action="close-details">닫기</button></div>
+  </dialog>
+
   <div id="mf-selection-tools" hidden><span></span><button type="button" data-action="bulk-tags">태그 편집</button><button type="button" data-action="notes-to-material">내용으로 메모 나누기</button></div>
   <div id="mf-batch-feedback" role="status" hidden></div>
   <dialog id="mf-material-dialog" class="mf-work-dialog" aria-labelledby="mf-material-title">
@@ -443,18 +453,20 @@ SOFTWARE.
     field.dispatchEvent(new Event('input',{bubbles:true}));
   }
 
-  const welcome=$('#mf-welcome'),welcomePreference=$('#mf-welcome-hide'),welcomeKey='moa-board.hide-welcome.v3';
+  const helpDialog=$('#mf-help-dialog'),welcome=$('#mf-welcome'),welcomePreference=$('#mf-welcome-hide'),welcomeKey='moa-board.hide-welcome.v3';
   function hideWelcomePreference(){try{return localStorage.getItem(welcomeKey)==='1';}catch{return false;}}
   function showWelcome(force=false){
     if(!force&&hideWelcomePreference())return;
     if(editor)finishEditing(true);
     closePanels();welcomePreference.checked=hideWelcomePreference();
-    if(!welcome.open)welcome.showModal();
+    welcome.querySelector('.mf-welcome-blank').textContent=allNotes().length?'내 보드로 가기':'빈 보드로 시작하기';
+    $('#mf-menu-toggle').focus();if(!welcome.open)welcome.showModal();
   }
   function closeWelcome(){
     try{if(welcomePreference.checked)localStorage.setItem(welcomeKey,'1');else localStorage.removeItem(welcomeKey);}catch{}
     welcome.close();
   }
+  function showHelp(){if(editor)finishEditing(true);closePanels();$('#mf-menu-toggle').focus();if(!helpDialog.open)helpDialog.showModal();}
   welcome.addEventListener('cancel',e=>{e.preventDefault();closeWelcome();});
   const page=()=>data.pages.find(p=>p.id===pageId);
   const allNotes=()=>data.pages.flatMap(p=>p.notes);
@@ -739,7 +751,7 @@ SOFTWARE.
     if(editor)finishEditing(true);
     if(fromNotes){const ns=picked();if(!ns.length)return;material.text=ns.map(n=>[n.title,n.body].filter(Boolean).join('\n')).join('\n\n');material.name='메모 재정리';material.drafts=[];material.previewKey=null;material.destination='new';}
     closePanels();$('#mf-material-name').value=material.name;$('#mf-material-text').value=material.text;$('#mf-material-mode').value=material.mode;$('#mf-material-destination').value=material.destination;$('#mf-material-destination').querySelector('[value="current"]').textContent='현재 페이지 · '+page().name;
-    $('#mf-material-use-tags').checked=material.useTags;$('#mf-material-error').textContent='';renderMaterialDrafts();if(!materialDialog.open)materialDialog.showModal();$('#mf-material-text').focus();scheduleMaterialDraft();
+    $('#mf-material-use-tags').checked=material.useTags;$('#mf-material-error').textContent='';renderMaterialDrafts();$('#mf-menu-toggle').focus();if(!materialDialog.open)materialDialog.showModal();$('#mf-material-text').focus();scheduleMaterialDraft();
   }
   function closeMaterial(){saveMaterialDraft();materialDialog.close();}
   function previewMaterial(){
@@ -1104,7 +1116,12 @@ SOFTWARE.
       case'duplicate':duplicate();break;
       case'pages':showPages();break;
       case'close-pages':closePanels();break;
-      case'help':showWelcome(true);break;
+      case'help':showHelp();break;
+      case'welcome-material':closeWelcome();openMaterial();break;
+      case'welcome-details':closeWelcome();showHelp();break;
+      case'close-details':helpDialog.close();break;
+      case'help-start':helpDialog.close();showWelcome(true);break;
+      case'help-material':helpDialog.close();openMaterial();break;
       case'close-help':closeWelcome();break;
       case'welcome-import':closeWelcome();$('#mf-file-input').click();break;
       case'export-file':exportFile();break;
@@ -1376,7 +1393,7 @@ SOFTWARE.
   let boardPointer=null,lastPaste=null,colorDraft=null;
   const colorDialog=$('#mf-color-dialog');
   function typingTarget(target){return target instanceof Element&&!!target.closest('input,textarea,select,[contenteditable]');}
-  function boardClipboardContext(e){return root.isConnected&&!study&&!welcome.open&&!colorDialog.open&&!materialDialog.open&&!bulkTagsDialog.open&&!sourceDialog.open&&!typingTarget(e.target)&&(root.contains(e.target)||e.target===document.body||e.target===document.documentElement);}
+  function boardClipboardContext(e){return root.isConnected&&!study&&!welcome.open&&!colorDialog.open&&!materialDialog.open&&!bulkTagsDialog.open&&!sourceDialog.open&&!helpDialog.open&&!typingTarget(e.target)&&(root.contains(e.target)||e.target===document.body||e.target===document.documentElement);}
   canvas.addEventListener('pointermove',e=>{boardPointer={x:e.clientX,y:e.clientY};});
   canvas.addEventListener('pointerleave',()=>{boardPointer=null;});
   document.addEventListener('copy',e=>{
@@ -1509,7 +1526,7 @@ SOFTWARE.
 
   document.addEventListener('keydown',e=>{
     if(!root.isConnected||e.isComposing)return;
-    if(materialDialog.open||bulkTagsDialog.open||sourceDialog.open)return;
+    if(materialDialog.open||bulkTagsDialog.open||sourceDialog.open||helpDialog.open)return;
     if(colorDialog.open){if(e.key==='Escape'){e.preventDefault();closePalette();}else if(e.key==='Enter'&&!e.isComposing){e.preventDefault();closePalette(true);}return;}
     if(welcome.open){if(e.key==='Escape'){e.preventDefault();closeWelcome();}return;}
     const active=document.activeElement;
@@ -1525,7 +1542,7 @@ SOFTWARE.
     if(active?.id==='mf-topic'&&e.key==='Enter'){e.preventDefault();setNoteTag(active.value,true);return;}
     if(active?.isContentEditable&&e.key==='Tab'&&editor&&!e.ctrlKey&&!e.metaKey&&!e.altKey){e.preventDefault();indentEditor(active,e.shiftKey);return;}
     if(textInput)return;
-    if(e.key==='?'||(e.code==='Slash'&&e.shiftKey)){e.preventDefault();showWelcome(true);return;}
+    if(e.key==='?'||(e.code==='Slash'&&e.shiftKey)){e.preventDefault();showHelp();return;}
     const key=physicalKey,command=e.ctrlKey||e.metaKey;
     if(command){
       if(key==='z'){e.preventDefault();undo();}
@@ -1787,6 +1804,41 @@ html,body {height:100%;overflow:hidden;overscroll-behavior:none}
 #moa-board #mf-batch-feedback{position:absolute;bottom:78px;left:18px;z-index:40;max-width:calc(100% - 36px);padding:9px 13px;background:var(--mf-panel);border:1px solid var(--mf-line);border-radius:7px;font-size:12px;box-shadow:0 3px 12px var(--mf-shadow)}
 #moa-board .mf-material-launch{display:flex;width:100%;justify-content:flex-start;padding:9px;border:1px solid var(--mf-accent);border-radius:6px;color:var(--mf-accent);margin:9px 0;font-size:12px}
 @media(max-width:700px){#moa-board #mf-material-dialog[open]{display:block;height:auto;overflow:auto}#moa-board #mf-material-dialog .mf-material-source,#moa-board #mf-material-dialog .mf-material-preview{max-height:none;overflow:visible}#moa-board #mf-material-dialog>.mf-work-footer{position:sticky;bottom:-17px;background:var(--mf-panel);padding-bottom:12px;z-index:2}#moa-board .mf-work-dialog{padding:17px;max-height:calc(100dvh - 20px)}#moa-board .mf-material-layout{grid-template-columns:1fr}#moa-board .mf-material-source{border-right:0;padding-right:0;border-bottom:1px solid var(--mf-line);padding-bottom:15px}#moa-board .mf-work-dialog input[type=text],#moa-board .mf-work-dialog textarea,#moa-board .mf-work-dialog select{font-size:16px}#moa-board .mf-work-footer>div{flex-wrap:wrap}#moa-board .mf-work-dialog button{min-height:36px}}
+
+</style>
+<style>
+#moa-board #mf-welcome{width:510px;max-width:calc(100% - 24px);max-height:calc(100svh - 24px);padding:24px}
+#moa-board #mf-welcome-title{font-size:20px;line-height:1.45;word-break:keep-all}
+#moa-board #mf-welcome-intro{margin:8px 0 18px}
+#moa-board #mf-welcome .mf-welcome-guide{gap:15px}
+#moa-board #mf-welcome .mf-guide-icon{font-size:13px;font-weight:500;margin-top:2px}
+#moa-board #mf-welcome .mf-welcome-guide li div>span{line-height:1.75}
+#moa-board .mf-welcome-save{display:grid;gap:3px;margin-top:18px;padding:11px 13px;background:var(--mf-board);border:1px solid var(--mf-line);border-radius:8px;font-size:12px;line-height:1.75}
+#moa-board .mf-welcome-save strong{font-weight:500}
+#moa-board .mf-welcome-save span{color:var(--mf-sub)}
+#moa-board .mf-welcome-save b{font-weight:500;color:var(--mf-ink)}
+#moa-board #mf-welcome .mf-welcome-preference{margin-top:16px}
+#moa-board #mf-welcome .mf-welcome-actions{margin-top:12px}
+#moa-board .mf-welcome-links{display:flex;justify-content:center;align-items:center;gap:8px;flex-wrap:wrap;margin-top:9px;color:var(--mf-sub);font-size:11px}
+#moa-board .mf-welcome-links button{padding:4px 2px;color:var(--mf-accent);text-decoration:underline;text-underline-offset:3px;border-radius:4px;font-size:12px}
+#moa-board .mf-welcome-return{font-size:11px;line-height:1.6;text-align:center;color:var(--mf-sub);margin:5px 0 0}
+#moa-board #mf-help-dialog{width:610px;max-width:calc(100% - 24px);max-height:calc(100svh - 32px);overflow:auto;padding:24px;background:var(--mf-panel);color:var(--mf-ink);border:1px solid var(--mf-line);border-radius:15px;box-shadow:0 20px 80px var(--mf-shadow)}
+#moa-board #mf-help-dialog::backdrop{background:light-dark(#24202f45,#00000080);backdrop-filter:blur(2px)}
+#moa-board #mf-help-title{font-size:20px;line-height:1.45;font-weight:500;margin:4px 0 0}
+#moa-board .mf-help-intro{font-size:12px;color:var(--mf-sub);margin:9px 0 18px}
+#moa-board #mf-help-dialog details{border-top:1px solid var(--mf-line);padding:0}
+#moa-board #mf-help-dialog summary{padding:12px 3px;cursor:pointer;font-size:13px;font-weight:500}
+#moa-board #mf-help-dialog details>div{padding:0 6px 13px}
+#moa-board #mf-help-dialog p{font-size:12px;line-height:1.85;margin:0 0 10px}
+#moa-board #mf-help-dialog b{font-weight:500}
+#moa-board #mf-help-dialog table{width:100%;border-collapse:collapse;font-size:12px;margin:4px 0 12px}
+#moa-board #mf-help-dialog th,#moa-board #mf-help-dialog td{text-align:left;vertical-align:top;border-bottom:1px solid var(--mf-line);padding:7px 4px;overflow-wrap:anywhere}
+#moa-board #mf-help-dialog th{font-weight:500}
+#moa-board #mf-help-dialog td:first-child{width:40%}
+#moa-board #mf-help-dialog .mf-help-action{padding:7px 10px;border:1px solid var(--mf-accent);color:var(--mf-accent);border-radius:5px;font-size:12px}
+#moa-board .mf-help-footer{display:flex;justify-content:space-between;align-items:center;gap:8px;border-top:1px solid var(--mf-line);padding-top:12px}
+#moa-board .mf-help-footer button{font-size:12px;border:1px solid var(--mf-line);border-radius:5px;padding:7px 10px}
+@media(max-width:450px){#moa-board .mf-welcome-tagline{display:block}#moa-board #mf-welcome{padding:18px}#moa-board #mf-welcome-title{font-size:19px}#moa-board #mf-welcome .mf-welcome-guide{gap:12px}#moa-board #mf-welcome .mf-welcome-guide li{gap:10px}#moa-board #mf-welcome .mf-guide-icon{width:28px;height:28px}#moa-board #mf-welcome .mf-welcome-guide li div>span{font-size:12px}#moa-board #mf-welcome .mf-welcome-guide br{display:none}#moa-board #mf-welcome .mf-welcome-actions{gap:6px}#moa-board #mf-welcome .mf-welcome-actions button{padding:9px 5px}#moa-board #mf-help-dialog{padding:18px}}
 
 </style>
 </body>
