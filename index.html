@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="자유롭게 메모를 배치하고, 가리고, 확인하며 공부하는 로그인 없는 암기 화이트보드.">
   <meta name="color-scheme" content="light dark">
-  <meta name="moa-build" content="2026-10-23-tags-type-fit-v6">
+  <meta name="moa-build" content="2026-10-24-black-text-v6-1">
   <title>모아보드 · 암기 화이트보드</title>
   <!-- Bundled Lucide icons. The complete ISC license is included below. -->
   <!-- ISC License
@@ -172,7 +172,7 @@ SOFTWARE.
   #moa-board .mf-modes button {padding:8px 12px;min-height:36px;border-radius:6px;font-size:12px;white-space:nowrap}
   #moa-board .mf-modes button[aria-pressed=true] {background:var(--mf-accent);color:var(--mf-on-accent)}
   #moa-board kbd {font-family:inherit;font-size:11px;line-height:1.5;border:1px solid currentColor;opacity:.6;border-radius:3px;padding:0 4px}
-  #moa-board .mf-note {position:absolute;width:242px;min-height:194px;padding:22px 23px 25px;border-radius:2px 2px 8px 2px;background:var(--mf-yellow);box-shadow:0 4px 10px var(--mf-shadow);border:1px solid transparent;user-select:none;touch-action:none}
+  #moa-board .mf-note {position:absolute;width:242px;min-height:194px;padding:22px 23px 25px;border-radius:2px 2px 8px 2px;background:var(--mf-yellow);color:light-dark(#000000,#f0ede6);box-shadow:0 4px 10px var(--mf-shadow);border:1px solid transparent;user-select:none;touch-action:none}
   #moa-board .mf-note::after {content:"";position:absolute;right:0;bottom:0;width:15px;height:15px;background:var(--mf-fold);clip-path:polygon(100% 0,100% 100%,0 100%);border-radius:0 0 7px 0;pointer-events:none}
   #moa-board .mf-note[data-color=mint] {background:var(--mf-mint)}
   #moa-board .mf-note[data-color=lilac] {background:var(--mf-lilac)}
@@ -182,7 +182,7 @@ SOFTWARE.
   #moa-board .mf-note-source {display:block;font-size:11px;color:var(--mf-sub);margin-bottom:12px;font-weight:400}
   #moa-board .mf-page-count {margin-left:auto;color:var(--mf-sub);font-size:11px}
   #moa-board .mf-page-separator {height:1px;background:var(--mf-line);margin:9px 0}
-  #moa-board .mf-note-body {display:block;font-size:13px;font-weight:400;line-height:1.9;white-space:pre-wrap;overflow-wrap:anywhere;color:var(--mf-sub)}
+  #moa-board .mf-note-body {display:block;font-size:13px;font-weight:400;line-height:1.9;white-space:pre-wrap;overflow-wrap:anywhere;color:inherit}
   #moa-board .mf-note.mf-masked .mf-note-body {filter:blur(6px);pointer-events:none}
   #moa-board .mf-note.mf-masked[data-mask=all] .mf-note-title {filter:blur(6px);pointer-events:none}
   #moa-board .mf-note.mf-editing {z-index:5;user-select:text}
@@ -295,7 +295,7 @@ SOFTWARE.
   }
   function rich(html,text){return typeof html==='string'?cleanHTML(html):esc(text||'').replace(/\n/g,'<br>');}
   function htmlText(html){const t=document.createElement('template');t.innerHTML=cleanHTML(html);t.content.querySelectorAll('br').forEach(el=>el.replaceWith(document.createTextNode('\n')));t.content.querySelectorAll('li').forEach(el=>el.append(document.createTextNode('\n')));return t.content.textContent.replace(/\u00a0/g,' ').replace(/\n$/,'');}
-  function contrast(hex){const c=hex.slice(1).match(/../g).map(x=>{const v=parseInt(x,16)/255;return v<=.04045?v/12.92:((v+.055)/1.055)**2.4;});return .2126*c[0]+.7152*c[1]+.0722*c[2]>.179?'#242424':'#ffffff';}
+  function contrast(hex){const c=hex.slice(1).match(/../g).map(x=>{const v=parseInt(x,16)/255;return v<=.04045?v/12.92:((v+.055)/1.055)**2.4;});return .2126*c[0]+.7152*c[1]+.0722*c[2]>.179?'#000000':'#ffffff';}
   function validSettings(raw){
     const out={theme:'basic',background:'dots',boardColor:null,recentColors:[],backgroundImage:null,backgroundName:'',backgroundImageMode:'cover',backgroundImageOpacity:1};
     if(raw&&typeof raw==='object'){
